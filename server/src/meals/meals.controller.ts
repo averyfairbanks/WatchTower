@@ -1,12 +1,13 @@
 import { Controller, Get } from '@nestjs/common';
 import { MealsService } from './meals.service';
+import { Meal } from './interfaces/meal.interface';
 
 @Controller('meals')
 export class MealsController {
-  constructor(private readonly appService: MealsService) {}
+  constructor(private readonly mealService: MealsService) {}
 
   @Get()
-  getMeals(): string {
-    return this.appService.getMeals();
+  getMeals(): Meal[] {
+    return this.mealService.getMeals();
   }
 }

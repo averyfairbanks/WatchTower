@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { Meal } from './interfaces/meal.interface';
 
 @Injectable()
 export class MealsService {
-  getMeals(): string {
-    return 'Hello World!';
+  getMeals(): Meal[] {
+    return [];
   }
 }
