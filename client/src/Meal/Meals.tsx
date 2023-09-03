@@ -8,16 +8,17 @@ import {
     Text,
 } from 'react-native-paper';
 import { useNavigate } from 'react-router-native';
-import { Meal } from './types';
+import { UserMeal } from './types';
 import { VStack } from '@react-native-material/core';
+import { store } from '../../store';
 
 export const Meals: React.FC = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [meals, setMeals] = useState<Meal[] | null>(null);
+    const [meals, setMeals] = useState<UserMeal[] | null>(null);
 
     useEffect(() => {
-        fetch('http://localhost:3000/meals', {
+        fetch(`http://localhost:3000/meals/${store.getRawState().user.id}`, {
             method: 'GET',
             headers: {
                 Accept: 'application/json',
@@ -44,7 +45,13 @@ export const Meals: React.FC = () => {
                         <Card.Title
                             title={
                                 idx === 0 ? (
-                                    <Text style={{fontSize: 30, fontWeight: '700'}}>Most Recent Meal</Text>
+                                    <Text
+                                        style={{
+                                            fontSize: 30,
+                                            fontWeight: '700',
+                                        }}>
+                                        Most Recent Meal
+                                    </Text>
                                 ) : (
                                     <Text variant="titleLarge">
                                         {meal.name}

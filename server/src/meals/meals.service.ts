@@ -1,82 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { Meal } from './interfaces/meal.interface';
+import { DataSource, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserMeal } from 'src/db/entities/user-meal.entity';
+import { User } from 'src/db/entities/user.entity';
 
 @Injectable()
 export class MealsService {
-  getMeals(): Meal[] {
-    return [
-      {
-        id: 1,
-        name: 'Rice and beans',
-        description: 'made me shid and fard',
-        photoUrl: new URL('https://picsum.photos/900'),
-        timeLogged: new Date(),
-        notified: false,
-      },
-      {
-        id: 2,
-        name: 'Rice and beans',
-        description: 'made me shid and fard',
-        photoUrl: new URL('https://picsum.photos/900'),
-        timeLogged: new Date(),
-        notified: true,
-      },
-      {
-        id: 3,
-        name: 'Rice and beans',
-        description: 'made me shid and fard',
-        photoUrl: new URL('https://picsum.photos/900'),
-        timeLogged: new Date(),
-        notified: true,
-      },
-      {
-        id: 4,
-        name: 'Rice and beans',
-        description: 'made me shid and fard',
-        photoUrl: new URL('https://picsum.photos/900'),
-        timeLogged: new Date(),
-        notified: false,
-      },
-      {
-        id: 5,
-        name: 'Rice and beans',
-        description: 'made me shid and fard',
-        photoUrl: new URL('https://picsum.photos/900'),
-        timeLogged: new Date(),
-        notified: true,
-      },
-      {
-        id: 6,
-        name: 'Rice and beans',
-        description: 'made me shid and fard',
-        photoUrl: new URL('https://picsum.photos/900'),
-        timeLogged: new Date(),
-        notified: true,
-      },
-      {
-        id: 7,
-        name: 'Rice and beans',
-        description: 'made me shid and fard',
-        photoUrl: new URL('https://picsum.photos/900'),
-        timeLogged: new Date(),
-        notified: true,
-      },
-      {
-        id: 8,
-        name: 'Rice and beans',
-        description: 'made me shid and fard',
-        photoUrl: new URL('https://picsum.photos/900'),
-        timeLogged: new Date(),
-        notified: true,
-      },
-      {
-        id: 9,
-        name: 'Rice and beans',
-        description: 'made me shid and fard',
-        photoUrl: new URL('https://picsum.photos/900'),
-        timeLogged: new Date(),
-        notified: true,
-      },
-    ];
+  constructor(
+    @InjectRepository(UserMeal) private userMealRepo: Repository<UserMeal>,
+  ) {}
+
+  findAllByUserId(id: number): Promise<UserMeal[]> {
+    return this.userMealRepo.findBy({ userId: id });
   }
 }
