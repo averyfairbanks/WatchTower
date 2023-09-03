@@ -1,7 +1,7 @@
 export interface Meal {
     id: number;
     name: string;
-    photoUri: URL;
+    photoUrl: URL;
     description: string;
     timeLogged: Date;
     notified: boolean;
