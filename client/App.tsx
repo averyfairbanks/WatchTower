@@ -5,6 +5,7 @@ import { Home } from './src/Home/Home';
 import { SnackBarProvider } from './src/common/SnackBar/SnackBarProvider';
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from 'react-native-paper';
 import { Meal } from './src/Meal/Meal';
+import { AppBarProvider } from './src/common/AppBar/AppBarProvider';
 
 const App = (): JSX.Element => {
     const theme = _isDarkMode() ? MD3DarkTheme : MD3LightTheme;
@@ -13,21 +14,23 @@ const App = (): JSX.Element => {
         <NativeRouter>
             <PaperProvider theme={theme}>
                 <SnackBarProvider>
-                    <Routes>
-                        <Route
-                            path="/"
-                            element={
-                                _isLoggedIn() ? (
-                                    <Navigate to="/home" replace />
-                                ) : (
-                                    <LoginPage />
-                                )
-                            }
-                        />
-                        <Route path="/login" element={<LoginPage />} />
-                        <Route path="/home" element={<Home />} />
-                        <Route path="/meal/:id" element={<Meal />} />
-                    </Routes>
+                    <AppBarProvider>
+                        <Routes>
+                            <Route path="/login" element={<LoginPage />} />
+                            <Route
+                                path="/"
+                                element={
+                                    _isLoggedIn() ? (
+                                        <Navigate to="/home" replace />
+                                    ) : (
+                                        <LoginPage />
+                                    )
+                                }
+                            />
+                            <Route path="/home" element={<Home />} />
+                            <Route path="/meal/:id" element={<Meal />} />
+                        </Routes>
+                    </AppBarProvider>
                 </SnackBarProvider>
             </PaperProvider>
         </NativeRouter>
