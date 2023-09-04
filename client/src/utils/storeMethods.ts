@@ -1,4 +1,5 @@
 import { store } from '../../store';
+import { encode } from './encoding';
 
 export const _isDarkMode = (): boolean => {
     return store.getRawState().preferences.isDarkMode;
@@ -12,6 +13,8 @@ export const _login = () => {
     store.getRawState();
 };
 
-export const _getUserId = () => {
-    return btoa(String(store.getRawState().user.id));
+export const _getUserDetails = () => {
+    const { user } = store.getRawState();
+    const { id, firstName, lastName } = user;
+    return { id: encode(String(id)), firstName, lastName };
 };
