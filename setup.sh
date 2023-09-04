@@ -4,6 +4,7 @@ if [ $# -gt 1 || $1 -ne "android" ]
 then
     printf "You must provide one argument, the mobile platform you are targeting"
     exit
+fi
 
 printf "Setting up necessary resources"
 
