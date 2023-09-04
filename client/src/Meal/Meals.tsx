@@ -14,12 +14,14 @@ import { UserMeal } from './types';
 import { VStack } from '@react-native-material/core';
 import { _getUserDetails } from '../utils/storeMethods';
 import { encode } from '../utils/encoding';
+import { useAppbarContext } from '../common/AppBar/hook';
 
 export const Meals: React.FC = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [meals, setMeals] = useState<UserMeal[] | null>(null);
     const { id: userId } = _getUserDetails();
+    const searchTerm = useAppbarContext();
 
     useEffect(() => {
         fetch(`http://localhost:3000/meals/${userId}`, {

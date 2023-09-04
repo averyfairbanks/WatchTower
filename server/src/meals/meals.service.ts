@@ -16,7 +16,14 @@ export class MealsService {
   ) {}
 
   findByUserId(userId: number): Promise<UserMeal[]> {
-    return this.userMealRepo.findBy({ userId });
+    return this.userMealRepo.find({
+      where: {
+        userId,
+      },
+      order: {
+        id: 'DESC',
+      },
+    });
   }
 
   findOneById(userId: number, mealId: number): Promise<UserMeal> {

@@ -1,41 +1,86 @@
 import { Stack } from '@react-native-material/core';
-import { ReactNode, createContext } from 'react';
-import { Appbar, Text } from 'react-native-paper';
+import { ReactNode, createContext, useEffect, useState } from 'react';
+import { Appbar, Searchbar } from 'react-native-paper';
+import { useLocation, useNavigate } from 'react-router-native';
 import { store } from '../../../store';
 import { _getUserDetails, _isLoggedIn } from '../../utils/storeMethods';
-import { useLocation, useNavigate } from 'react-router-native';
 
-export const AppBarContext = createContext(undefined);
-
-const determineAppbarText = (path: string) => {
-    if (path === '/home') {
-        const { firstName } = _getUserDetails();
-        return `Hello ${firstName}!`;
-    } else if (path === '/meal/create') {
-        return 'Log New Meal';
-    } else if (/\/meal\/\w/.test(path)) {
-        return '';
-    } 
-};
+export const AppBarContext = createContext('');
 
 export const AppBarProvider: React.FC<{ children: ReactNode }> = ({
     children,
 }) => {
     const navigate = useNavigate();
-    const currPath = useLocation().pathname;
+
+    const [state, setState] = useState({
+        titleMessage: '',
+        back: false,
+        search: false,
+        searchOpen: false,
+    });
+
+    const path = useLocation().pathname;
+
+    useEffect(() => {
+        if (path === '/home') {
+            const { firstName } = _getUserDetails();
+            setState({
+                titleMessage: `Hello ${firstName}!`,
+                back: false,
+                search: true,
+                searchOpen: false,
+            });
+        } else if (path === '/meal/create') {
+            setState({
+                titleMessage: 'Log New Meal',
+                back: true,
+                search: false,
+                searchOpen: false,
+            });
+        } else {
+            setState({
+                titleMessage: '',
+                back: true,
+                search: false,
+                searchOpen: false,
+            });
+        }
+    }, [path]);
+
+    const [searchTerm, setSearchTerm] = useState<string>('');
 
     return (
-        <AppBarContext.Provider value={undefined}>
-            {store.getRawState().loggedIn ? (
+        <AppBarContext.Provider value={searchTerm}>
+            {_isLoggedIn() ? (
                 <Stack>
                     <Appbar.Header>
-                        <Appbar.BackAction
-                            onPress={() => {
-                                navigate(-1);
-                            }}
-                        />
-                        <Appbar.Content title={determineAppbarText(currPath)} />
-                        <Appbar.Action icon="magnify" onPress={() => {}} />
+                        {state.back && (
+                            <Appbar.BackAction
+                                onPress={() => {
+                                    setState({ ...state, searchOpen: false });
+                                    setSearchTerm('');
+                                    navigate(-1);
+                                }}
+                            />
+                        )}
+                        {!state.searchOpen && (
+                            <Appbar.Content title={state.titleMessage} />
+                        )}
+                        {state.search && !state.searchOpen && (
+                            <Appbar.Action
+                                icon="magnify"
+                                onPress={() =>
+                                    setState({ ...state, searchOpen: true })
+                                }
+                            />
+                        )}
+                        {state.searchOpen && (
+                            <Searchbar
+                                placeholder="Search"
+                                onChangeText={setSearchTerm}
+                                value={searchTerm}
+                            />
+                        )}
                     </Appbar.Header>
                 </Stack>
             ) : null}
