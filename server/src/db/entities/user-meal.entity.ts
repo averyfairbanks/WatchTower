@@ -5,7 +5,7 @@ export class UserMeal {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({name: 'user_id'})
   userId: number;
 
   @Column()
@@ -14,10 +14,10 @@ export class UserMeal {
   @Column({ default: 'No description' })
   description: string;
 
-  @Column({ default: '' })
+  @Column({ name: 'photo_url', default: ''})
   photoUrl: string;
 
-  @Column()
+  @Column({name: 'photo_url'})
   timeLogged: Date;
 
   @Column({default: false})
