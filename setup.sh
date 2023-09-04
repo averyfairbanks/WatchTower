@@ -1,18 +1,26 @@
 #!/bin/bash
 
+if [ $# -gt 1 || $1 -ne "android" ]
+then
+    printf "You must provide one argument, the mobile platform you are targeting"
+    exit
+
 printf "Setting up necessary resources"
 
 printf "docker"
 docker pull postgres
-docker run --name watchtower -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin -p 5432:5432 -v /data:/var/lib/postgresql/data -d postgres
+cd /server
+docker compose up
 
-printf "android"
-ANDROID_DEVICES=$(adb devices)
-DEVICE_COUNT=$(grep -c "emulator-" "${ANDROID_DEVICES}")
-if [$DEVICE_COUNT -ge 1]
-    then adb reverse tcp:3000 tcp:3000
-else
-    printf "Couldn't find android device"
+if [$0 === 'android']
+then
+    printf "android"
+    ANDROID_DEVICES=$(adb devices)
+    if [[$ANDROID_DEVICES =~ "emulator-"]]
+        then adb reverse tcp:3000 tcp:3000
+    else
+        printf "Couldn't find android device"
+    fi
 fi
 
 printf "setup complete"
