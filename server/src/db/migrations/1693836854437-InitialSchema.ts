@@ -11,7 +11,7 @@ export class InitialSchema1693836854437 implements MigrationInterface {
                 email VARCHAR(128) NOT NULL
             );
                 
-            CREATE TABLE IF NOT EXISTS user_meals (
+            CREATE TABLE IF NOT EXISTS user_meal (
                 id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                 user_id BIGINT NOT NULL,
                 name VARCHAR(128) NOT NULL,
