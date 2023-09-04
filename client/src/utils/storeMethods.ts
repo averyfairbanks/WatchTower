@@ -16,5 +16,5 @@ export const _login = () => {
 export const _getUserDetails = () => {
     const { user } = store.getRawState();
     const { id, firstName, lastName } = user;
-    return { id: encode(String(id)), firstName, lastName };
+    return { id: encode(id), firstName, lastName };
 };

@@ -6,6 +6,7 @@ import { SnackBarProvider } from './src/common/SnackBar/SnackBarProvider';
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from 'react-native-paper';
 import { Meal } from './src/Meal/Meal';
 import { AppBarProvider } from './src/common/AppBar/AppBarProvider';
+import { LogMeal } from './src/Meal/LogMeal';
 
 const App = (): JSX.Element => {
     const theme = _isDarkMode() ? MD3DarkTheme : MD3LightTheme;
@@ -29,6 +30,7 @@ const App = (): JSX.Element => {
                             />
                             <Route path="/home" element={<Home />} />
                             <Route path="/meal/:id" element={<Meal />} />
+                            <Route path="/meal/create" element={<LogMeal />} />
                         </Routes>
                     </AppBarProvider>
                 </SnackBarProvider>

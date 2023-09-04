@@ -4,6 +4,6 @@ export interface UserMeal {
     name: string;
     photoUrl: URL;
     description: string;
-    timeLogged: Date;
+    timeLogged: string;
     notified: boolean;
 }
