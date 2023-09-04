@@ -1,9 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { Meal } from './interfaces/meal.interface';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserMeal } from '../db/entities/user-meal.entity';
 
 @Injectable()
 export class MealsService {
-  getMeals(): Meal[] {
-    return [];
+  constructor(
+    @InjectRepository(UserMeal)
+    private readonly userMealRepo: Repository<UserMeal>,
+  ) {}
+
+  findByUserId(userId: number): Promise<UserMeal[]> {
+    return this.userMealRepo.findBy({ userId });
   }
 }
