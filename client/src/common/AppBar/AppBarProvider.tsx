@@ -11,6 +11,7 @@ export const AppBarProvider: React.FC<{ children: ReactNode }> = ({
     children,
 }) => {
     const navigate = useNavigate();
+    
 
     return (
         <AppBarContext.Provider value={undefined}>
