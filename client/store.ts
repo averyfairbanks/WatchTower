@@ -4,7 +4,7 @@ import { useColorScheme } from 'react-native';
 interface UIStore {
     loggedIn: boolean;
     user: {
-        id: number,
+        id: number;
         firstName: string;
         lastName: string;
         email: string;

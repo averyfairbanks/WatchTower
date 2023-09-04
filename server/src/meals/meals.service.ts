@@ -13,4 +13,8 @@ export class MealsService {
   findByUserId(userId: number): Promise<UserMeal[]> {
     return this.userMealRepo.findBy({ userId });
   }
+
+  findOneById(userId: number, mealId: number) {
+    return this.userMealRepo.findOneBy({userId, id: mealId})
+  }
 }
