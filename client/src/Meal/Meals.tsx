@@ -11,14 +11,16 @@ import { useNavigate } from 'react-router-native';
 import { UserMeal } from './types';
 import { VStack } from '@react-native-material/core';
 import { store } from '../../store';
+import { _getUserId } from '../utils/storeMethods';
 
 export const Meals: React.FC = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [meals, setMeals] = useState<UserMeal[] | null>(null);
+    const userId = _getUserId();
 
     useEffect(() => {
-        fetch(`http://localhost:3000/meals/${store.getRawState().user.id}`, {
+        fetch(`http://localhost:3000/meals/${userId}`, {
             method: 'GET',
             headers: {
                 Accept: 'application/json',

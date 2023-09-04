@@ -11,3 +11,7 @@ export const _isLoggedIn = (): boolean => {
 export const _login = () => {
     store.getRawState();
 };
+
+export const _getUserId = () => {
+    return btoa(String(store.getRawState().user.id));
+};
