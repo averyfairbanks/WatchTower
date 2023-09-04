@@ -8,9 +8,7 @@ export class MealsController {
   constructor(private readonly mealService: MealsService) {}
 
   @Get(':user_id')
-  findAllByUserId(
-    @Param('user_id') userId: string,
-  ): Promise<UserMeal[]> {
+  findAllByUserId(@Param('user_id') userId: string): Promise<UserMeal[]> {
     return this.mealService.findByUserId(decode(userId));
   }
 
