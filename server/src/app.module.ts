@@ -4,6 +4,7 @@ import { UserMeal } from './db/entities/user-meal.entity';
 import { User } from './db/entities/user.entity';
 import { InitialSchema1693836854437 as InitialSchema } from './db/migrations/1693836854437-InitialSchema';
 import { MealsModule } from './meals/meals.modules';
+import { S3Module } from './s3/s3.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { MealsModule } from './meals/meals.modules';
       synchronize: false,
     }),
     MealsModule,
+    S3Module,
   ],
 })
 export class AppModule {}
