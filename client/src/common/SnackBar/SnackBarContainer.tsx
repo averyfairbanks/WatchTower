@@ -5,13 +5,13 @@ import { Snack } from './types';
 import { SnackBarWrapper } from './SnackBarWrapper';
 
 export const SnackBarContainer: React.FC<{ snacks: Snack[] }> = ({
-    snacks,
+  snacks,
 }) => {
-    return (
-        <View>
-            {snacks.map((snack: Snack) => (
-                <SnackBarWrapper key={snack.id} snack={snack} />
-            ))}
-        </View>
-    );
+  return (
+    <View>
+      {snacks.map((snack: Snack) => (
+        <SnackBarWrapper key={snack.id} snack={snack} />
+      ))}
+    </View>
+  );
 };
