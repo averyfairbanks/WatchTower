@@ -12,4 +12,3 @@ export interface PaginatedMealsRequest {
   pageLimit: number;
   offset: number;
 }
-

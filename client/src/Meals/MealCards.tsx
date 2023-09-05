@@ -45,7 +45,9 @@ export const MealCards: React.FC<MealCardsProps> = ({ meals }) => {
                       )
                     }
                     subtitle={
-                      idx === 0 && offset === 1 ? undefined : <Text>{convDateTime}</Text>
+                      idx === 0 && offset === 1 ? undefined : (
+                        <Text>{convDateTime}</Text>
+                      )
                     }
                     left={props => <Avatar.Icon {...props} icon="food" />}
                     right={meal.notified ? undefined : () => <Badge />}
