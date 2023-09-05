@@ -98,7 +98,7 @@ export const LogMeal: React.FC = () => {
                 name: e.nativeEvent.text,
               })
             }
-            maxLength={128}
+            maxLength={64}
           />
         </View>
         <View>
