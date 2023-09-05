@@ -1,5 +1,5 @@
-import { Fragment, ReactNode, createContext, useEffect, useState } from 'react';
-import { FAB } from 'react-native-paper';
+import { ReactNode, createContext, useEffect, useState } from 'react';
+import { FAB, Surface, useTheme } from 'react-native-paper';
 import { useNavigate } from 'react-router-native';
 import styled from 'styled-components';
 import { UserMeal } from '../Meal/types';
@@ -8,7 +8,7 @@ import { useSnackBar } from '../common/SnackBar/hook';
 import { SnackType } from '../common/SnackBar/types';
 import { _getUserDetails } from '../utils/storeMethods';
 
-const PaginateFAB = styled(FAB)`
+const PaginateFAB = styled(FAB).attrs({ variant: 'surface' })`
   position: absolute;
   bottom: 10px;
   border-radius: 30px;
@@ -25,6 +25,8 @@ export const MealsProvider: React.FC<MealLoaderProps> = ({
   setIsLoading,
   children,
 }) => {
+  const theme = useTheme();
+
   const navigate = useNavigate();
 
   const searchTerm = useSearchbarContext();
@@ -66,25 +68,40 @@ export const MealsProvider: React.FC<MealLoaderProps> = ({
     <MealContext.Provider value={meals}>
       {children}
       {!!meals?.length && (
-        <Fragment>
-          <PaginateFAB disabled={true} icon="arrow-left" style={{ left: 10 }} />
-          <FAB
-            icon="plus"
+        <>
+          <Surface
             style={{
+              backgroundColor: theme.colors.primary,
               position: 'absolute',
-              alignSelf: 'center',
-              bottom: 10,
-            }}
-            onPress={() => {
-              navigate('/meal/create');
-            }}
-          />
-          <PaginateFAB
-            disabled={true}
-            icon="arrow-right"
-            style={{ right: 10 }}
-          />
-        </Fragment>
+              height: 80,
+              bottom: 0,
+              right: 0,
+              left: 0,
+            }}>
+            <PaginateFAB
+              disabled={false}
+              icon="arrow-left"
+              style={{ left: 10 }}
+            />
+            <FAB
+              icon="plus"
+              variant="surface"
+              style={{
+                position: 'absolute',
+                alignSelf: 'center',
+                bottom: 10,
+              }}
+              onPress={() => {
+                navigate('/meal/create');
+              }}
+            />
+            <PaginateFAB
+              disabled={false}
+              icon="arrow-right"
+              style={{ right: 10 }}
+            />
+          </Surface>
+        </>
       )}
     </MealContext.Provider>
   );
