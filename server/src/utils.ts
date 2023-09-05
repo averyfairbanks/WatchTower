@@ -5,8 +5,14 @@ export const decode = (encodedId: string) => {
     return parseInt(atob(encodedId));
   } catch (err) {
     if (err instanceof DOMException) {
-      throw new HttpException("ID couldn't be decoded.", HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        "ID couldn't be decoded.",
+        HttpStatus.BAD_REQUEST,
+      );
     }
-    throw new HttpException("UNKNOWN exception in decode method.", HttpStatus.AMBIGUOUS);
+    throw new HttpException(
+      'UNKNOWN exception in decode method.',
+      HttpStatus.AMBIGUOUS,
+    );
   }
 };

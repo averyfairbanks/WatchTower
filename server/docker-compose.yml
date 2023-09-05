@@ -1,15 +1,14 @@
 version: '3.8'
 services:
-    postgres:
-        build: ./data
-        image: postgres:latest
-        restart: always
-        container_name: watchtower
-        environment:
-            - POSTGRES_USER=admin
-            - POSTGRES_PASSWORD=admin
-            - POSTGRES_DB=watchtower
-        ports:
-            - '5432:5432'
-        volumes:
-            - '/data:/var/lib/postgresql/data'
+  postgres:
+    image: postgres:latest
+    restart: always
+    container_name: watchtower
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=watchtower
+    ports:
+      - '5432:5432'
+    volumes:
+      - '/data:/var/lib/postgresql/data'
