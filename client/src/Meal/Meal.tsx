@@ -68,7 +68,7 @@ export const Meal: React.FC = () => {
           <>
             <Surface
               style={{
-                backgroundColor: theme.colors.inversePrimary,
+                backgroundColor: theme.colors.onTertiary,
                 margin: 0,
                 width: width,
               }}>
