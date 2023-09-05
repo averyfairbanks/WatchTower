@@ -1,10 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserMeal } from '../db/entities/user-meal.entity';
 import { CreateMealDto } from './dto/create-meal.dto';
 import { User } from 'src/db/entities/user.entity';
 import { decode } from 'src/utils';
+import { PaginateMeals } from './dto/paginate-meals.dto';
 
 @Injectable()
 export class MealsService {
@@ -15,14 +16,20 @@ export class MealsService {
     private readonly userRepo: Repository<User>,
   ) {}
 
-  findByUserId(userId: number): Promise<UserMeal[]> {
+  findByUserId(userId: number, paginate: PaginateMeals): Promise<UserMeal[]> {
+    const { searchTerm, pageLimit, offset } = paginate;
+    const pageOffset = (offset - 1) * pageLimit;
+    
     return this.userMealRepo.find({
       where: {
         userId,
+        name: searchTerm ? Like(`%${searchTerm}%`) : undefined,
       },
       order: {
         id: 'DESC',
       },
+      take: pageLimit ? pageLimit : undefined,
+      skip: pageOffset ? pageOffset : undefined,
     });
   }
 

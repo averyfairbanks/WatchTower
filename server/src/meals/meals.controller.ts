@@ -1,16 +1,27 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+} from '@nestjs/common';
 import { MealsService } from './meals.service';
 import { UserMeal } from 'src/db/entities/user-meal.entity';
 import { decode } from 'src/utils';
 import { CreateMealDto } from './dto/create-meal.dto';
+import { PaginateMeals } from './dto/paginate-meals.dto';
 
 @Controller()
 export class MealsController {
   constructor(private readonly mealService: MealsService) {}
 
-  @Get('meals/:user_id')
-  findAllByUserId(@Param('user_id') userId: string): Promise<UserMeal[]> {
-    return this.mealService.findByUserId(decode(userId));
+  @Post('meals/:user_id')
+  findAllByUserId(
+    @Param('user_id') userId: string,
+    @Body() paginate: PaginateMeals,
+  ): Promise<UserMeal[]> {
+    return this.mealService.findByUserId(decode(userId), paginate);
   }
 
   @Get('meal/:user_id/:meal_id')

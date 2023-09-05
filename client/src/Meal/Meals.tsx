@@ -25,11 +25,12 @@ export const Meals: React.FC = () => {
 
     useEffect(() => {
         fetch(`http://localhost:3000/meals/${userId}`, {
-            method: 'GET',
+            method: 'POST',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json; charset=utf-8',
             },
+            body: JSON.stringify({ searchTerm }),
         })
             .then(res => res.json())
             .then(val => {
@@ -40,7 +41,7 @@ export const Meals: React.FC = () => {
                 console.error(err);
                 setIsLoading(false);
             });
-    }, []);
+    }, [searchTerm]);
 
     return !isLoading ? (
         meals && meals.length ? (
@@ -50,7 +51,9 @@ export const Meals: React.FC = () => {
                     alwaysBounceVertical={true}>
                     <VStack fill spacing={8}>
                         {meals.map((meal, idx) => {
-                            const convDateTime = new Date(meal.timeLogged).toLocaleString();
+                            const convDateTime = new Date(
+                                meal.timeLogged,
+                            ).toLocaleString();
 
                             return (
                                 <Card
@@ -78,9 +81,7 @@ export const Meals: React.FC = () => {
                                         }
                                         subtitle={
                                             idx === 0 ? undefined : (
-                                                <Text>
-                                                    {convDateTime}
-                                                </Text>
+                                                <Text>{convDateTime}</Text>
                                             )
                                         }
                                         left={props => (
@@ -132,7 +133,7 @@ export const Meals: React.FC = () => {
                     }}
                 />
             </Fragment>
-        ) : (
+        ) : !searchTerm && !meals ? (
             <VStack fill center spacing={15}>
                 <Avatar.Icon icon="gauge-empty" />
                 <VStack center>
@@ -142,6 +143,15 @@ export const Meals: React.FC = () => {
                     <Text variant="bodyLarge">Let's fix that!</Text>
                 </VStack>
                 <Button mode="text">Add Meal</Button>
+            </VStack>
+        ) : (
+            <VStack fill center spacing={15}>
+                <Avatar.Icon icon="gauge-empty" />
+                <VStack center>
+                    <Text variant="bodyLarge">
+                        Nothing here...
+                    </Text>
+                </VStack>
             </VStack>
         )
     ) : (
