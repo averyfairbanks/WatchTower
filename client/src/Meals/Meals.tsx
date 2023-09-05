@@ -7,25 +7,22 @@ import { MealsProvider } from './MealsProvider';
 import { useMeals } from './hook';
 
 interface MealsProps {
-  loading: {
-    get: boolean;
-    set: React.Dispatch<React.SetStateAction<boolean>>;
-  };
+  isLoading: boolean
 }
 
-const Meals: React.FC<MealsProps> = ({ loading }) => {
+const Meals: React.FC<MealsProps> = ({ isLoading }) => {
   const meals = useMeals();
   const searchTerm = useSearchbarContext();
 
-  switch (loading.get) {
+  switch (isLoading) {
     case true:
       return <Loading />;
     case false:
       switch (meals && !!meals.length) {
         case true:
-          return <MealCards meals={meals} loading={loading} />;
+          return <MealCards meals={meals} />;
         case false:
-          return <NoResults noMeals={!searchTerm && !meals} />;
+          return <NoResults noMeals={!searchTerm} />;
       }
   }
 };
@@ -35,7 +32,7 @@ export const MealsWrapper: React.FC = () => {
 
   return (
     <MealsProvider setIsLoading={setIsLoading}>
-      <Meals loading={{ get: isLoading, set: setIsLoading }} />
+      <Meals isLoading={isLoading} />
     </MealsProvider>
   );
 };

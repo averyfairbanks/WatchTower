@@ -7,14 +7,10 @@ import { UserMeal } from '../Meal/types';
 import { encode } from '../utils/encoding';
 
 interface MealCardsProps {
-  loading: {
-    get: boolean;
-    set: React.Dispatch<React.SetStateAction<boolean>>;
-  };
   meals: UserMeal[] | null;
 }
 
-export const MealCards: React.FC<MealCardsProps> = ({ loading, meals }) => {
+export const MealCards: React.FC<MealCardsProps> = ({ meals }) => {
   const navigate = useNavigate();
 
   return (

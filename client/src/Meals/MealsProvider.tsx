@@ -1,6 +1,8 @@
 import { ReactNode, createContext, useEffect, useState } from 'react';
-import { useSearchbarContext } from '../common/AppBar/hook';
 import { UserMeal } from '../Meal/types';
+import { useSearchbarContext } from '../common/AppBar/hook';
+import { useSnackBar } from '../common/SnackBar/hook';
+import { SnackType } from '../common/SnackBar/types';
 import { _getUserDetails } from '../utils/storeMethods';
 
 interface MealLoaderProps {
@@ -15,6 +17,8 @@ export const MealsProvider: React.FC<MealLoaderProps> = ({
   children,
 }) => {
   const searchTerm = useSearchbarContext();
+  const { addSnack } = useSnackBar();
+
   const { id: userId } = _getUserDetails();
 
   const [meals, setMeals] = useState<UserMeal[] | null>(null);
@@ -28,7 +32,12 @@ export const MealsProvider: React.FC<MealLoaderProps> = ({
       },
       body: JSON.stringify({ searchTerm: searchTerm }),
     })
-      .then(res => res.json())
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        }
+        throw new Error('Error returned from server');
+      })
       .then(val => {
         setMeals(val);
         setIsLoading(false);
@@ -36,11 +45,9 @@ export const MealsProvider: React.FC<MealLoaderProps> = ({
       .catch(err => {
         console.error(err);
         setIsLoading(false);
+        addSnack('Error retrieving meals', SnackType.FAILURE);
       });
   }, [searchTerm]);
 
-  return <MealContext.Provider value={meals}>
-    {children}
-    
-  </MealContext.Provider>;
+  return <MealContext.Provider value={meals}>{children}</MealContext.Provider>;
 };

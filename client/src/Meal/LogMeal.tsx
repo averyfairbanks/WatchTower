@@ -1,13 +1,13 @@
 import { VStack } from '@react-native-material/core';
-import { ScrollView, View } from 'react-native';
-import { Button, Text, TextInput } from 'react-native-paper';
-import styled from 'styled-components/native';
-import DocumentPicker from 'react-native-document-picker';
 import { useCallback, useState } from 'react';
+import { ScrollView, View } from 'react-native';
+import DocumentPicker from 'react-native-document-picker';
+import { Button, Text, TextInput } from 'react-native-paper';
+import { useNavigate } from 'react-router-native';
+import styled from 'styled-components/native';
 import { useSnackBar } from '../common/SnackBar/hook';
 import { SnackType } from '../common/SnackBar/types';
 import { _getUserDetails } from '../utils/storeMethods';
-import { useNavigate } from 'react-router-native';
 
 const StyledText = styled(Text).attrs({ variant: 'titleLarge' })``;
 const StyledTextInput = styled(TextInput).attrs({
@@ -63,7 +63,16 @@ export const LogMeal: React.FC = () => {
       },
       body: JSON.stringify(createDto),
     })
-      .then(_ => {
+      .then(async res => {
+        if (res.ok) {
+          return res.json();
+        }
+
+        const body = await res.json();
+        throw new Error(`${body.statusCode}, ${body.statusText}`);
+      })
+      .then(json => {
+        console.log(json);
         setIsLoading(false);
         navigate(-1);
       })
