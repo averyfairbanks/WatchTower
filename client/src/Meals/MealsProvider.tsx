@@ -39,5 +39,8 @@ export const MealsProvider: React.FC<MealLoaderProps> = ({
       });
   }, [searchTerm]);
 
-  return <MealContext.Provider value={meals}>{children}</MealContext.Provider>;
+  return <MealContext.Provider value={meals}>
+    {children}
+    
+  </MealContext.Provider>;
 };
