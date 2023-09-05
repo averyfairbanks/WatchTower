@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Like, Repository } from 'typeorm';
+import { ILike, Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserMeal } from '../db/entities/user-meal.entity';
 import { CreateMealDto } from './dto/create-meal.dto';
@@ -23,7 +23,7 @@ export class MealsService {
     return this.userMealRepo.find({
       where: {
         userId,
-        name: searchTerm ? Like(`%${searchTerm}%`) : undefined,
+        name: searchTerm ? ILike(`%${searchTerm}%`) : undefined,
       },
       order: {
         id: 'DESC',
