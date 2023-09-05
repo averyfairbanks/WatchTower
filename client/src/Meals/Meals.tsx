@@ -6,13 +6,10 @@ import { MealCards } from './MealCards';
 import { MealsProvider } from './MealsProvider';
 import { useMeals } from './hook';
 
-interface MealsProps {
-  isLoading: boolean
-}
-
-const Meals: React.FC<MealsProps> = ({ isLoading }) => {
+const Meals: React.FC<{isLoading: boolean}> = ({ isLoading }) => {
   const meals = useMeals();
   const searchTerm = useSearchbarContext();
+
 
   switch (isLoading) {
     case true:

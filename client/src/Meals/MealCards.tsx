@@ -67,18 +67,6 @@ export const MealCards: React.FC<MealCardsProps> = ({ meals }) => {
             })}
         </VStack>
       </ScrollView>
-      <FAB
-        icon="plus"
-        style={{
-          position: 'absolute',
-          margin: 16,
-          right: 0,
-          bottom: 0,
-        }}
-        onPress={() => {
-          navigate('/meal/create');
-        }}
-      />
     </Fragment>
   );
 };
