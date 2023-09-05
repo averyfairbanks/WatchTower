@@ -22,36 +22,4 @@ export class UserMeal {
 
   @Column({ default: false })
   notified: boolean;
-
-  setUserId = (userId: number) => {
-    if (!userId) {
-      throw new Error('id was invalid');
-    }
-    this.userId = userId;
-    return this;
-  };
-
-  setName = (name: string) => {
-    if (!name) {
-      throw new Error('name was invalid');
-    }
-    this.name = name;
-    return this;
-  };
-
-  setDescription = (desc: string) => {
-    if (!desc) {
-      throw new Error('description was invalid');
-    }
-    this.description = desc;
-    return this;
-  };
-
-  setPhotoUrl = (url: string) => {
-    if (!url) {
-      throw new Error('photoUrl was invalid');
-    }
-    this.photoUrl = url;
-    return this;
-  };
 }

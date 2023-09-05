@@ -1,18 +1,17 @@
 import { useState } from 'react';
-import { useSearchbarContext } from '../common/AppBar/hook';
 import { Loading } from '../common/Loading/Loading';
 import { NoResults } from '../common/NoResultsPage.tsx/NoResults';
 import { MealCards } from './MealCards';
 import { MealsProvider } from './MealsProvider';
-import { useMeals } from './hook';
+import { useMeals } from './hooks';
 
-interface MealsProps {
-  isLoading: boolean
-}
+const Meals: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
+  const pagedMeals = useMeals();
 
-const Meals: React.FC<MealsProps> = ({ isLoading }) => {
-  const meals = useMeals();
-  const searchTerm = useSearchbarContext();
+  const meals = pagedMeals ? pagedMeals.entities : [];
+  const total = pagedMeals?.pageDetails?.total
+    ? pagedMeals.pageDetails.total
+    : 0;
 
   switch (isLoading) {
     case true:
@@ -22,7 +21,7 @@ const Meals: React.FC<MealsProps> = ({ isLoading }) => {
         case true:
           return <MealCards meals={meals} />;
         case false:
-          return <NoResults noMeals={!searchTerm} />;
+          return <NoResults noMeals={total === 0} />;
       }
   }
 };

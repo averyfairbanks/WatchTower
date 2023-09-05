@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { MealsModule } from './meals/meals.modules';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './db/entities/user.entity';
 import { UserMeal } from './db/entities/user-meal.entity';
+import { User } from './db/entities/user.entity';
 import { InitialSchema1693836854437 as InitialSchema } from './db/migrations/1693836854437-InitialSchema';
+import { MealsModule } from './meals/meals.modules';
 
 @Module({
   imports: [

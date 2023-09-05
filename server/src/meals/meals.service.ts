@@ -1,8 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/db/entities/user.entity';
+import { Paginated } from 'src/models/paginated.model';
+import { PagingDetails } from 'src/models/paging-details.model';
 import { decode } from 'src/utils';
-import { ILike, Repository } from 'typeorm';
+import { DataSource, ILike, Repository } from 'typeorm';
 import { UserMeal } from '../db/entities/user-meal.entity';
 import { CreateMealDto } from './dto/create-meal.dto';
 import { PaginateMeals } from './dto/paginate-meals.dto';
@@ -14,13 +16,19 @@ export class MealsService {
     private readonly userMealRepo: Repository<UserMeal>,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    private readonly dataSource: DataSource,
   ) {}
 
-  findByUserId(userId: number, paginate: PaginateMeals): Promise<UserMeal[]> {
+  async findByUserId(
+    userId: number,
+    paginate: PaginateMeals,
+  ): Promise<Paginated<UserMeal>> {
     const { searchTerm, pageLimit, offset } = paginate;
+    const { min, max, total } = await this.getPagingDetails(userId, searchTerm);
+
     const pageOffset = (offset - 1) * pageLimit;
 
-    return this.userMealRepo.find({
+    const meals = await this.userMealRepo.find({
       where: {
         userId,
         name: searchTerm ? ILike(`%${searchTerm}%`) : undefined,
@@ -31,6 +39,35 @@ export class MealsService {
       take: pageLimit ? pageLimit : undefined,
       skip: pageOffset ? pageOffset : undefined,
     });
+
+    const paginatedMeals: Paginated<UserMeal> = {
+      entities: meals,
+      pageDetails: {
+        hasForward: meals[meals.length - 1]?.id > min,
+        hasBackward: meals[0]?.id < max,
+        total: total,
+      },
+    };
+
+    return paginatedMeals;
+  }
+
+  getPagingDetails(userId: number, searchTerm: string): Promise<PagingDetails> {
+    const qb = this.dataSource
+      .createQueryBuilder()
+      .select('min(id)', 'min')
+      .addSelect('max(id)', 'max')
+      .addSelect('count(id)', 'total')
+      .from(UserMeal, 'user_meal')
+      .where('user_meal.user_id = :userId', {
+        userId,
+      });
+
+    if (searchTerm) {
+      qb.andWhere('user_meal.name ilike :searchTerm', { searchTerm });
+    }
+
+    return qb.getRawOne();
   }
 
   findOneById(userId: number, mealId: number): Promise<UserMeal> {
@@ -50,11 +87,14 @@ export class MealsService {
       });
     }
 
-    const userMeal = new UserMeal()
-      .setUserId(user.id)
-      .setName(createMealDto.name)
-      .setDescription(createMealDto.description)
-      .setPhotoUrl(createMealDto.photoUrl);
+    const { name, description, photoUrl } = createMealDto;
+
+    const userMeal: Partial<UserMeal> = {
+      userId: user.id,
+      name,
+      description,
+      photoUrl,
+    };
 
     return this.userMealRepo.save(userMeal);
   }

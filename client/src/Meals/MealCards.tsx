@@ -1,10 +1,11 @@
 import { VStack } from '@react-native-material/core';
 import { Fragment } from 'react';
 import { ScrollView } from 'react-native';
-import { Avatar, Badge, Card, FAB, Text } from 'react-native-paper';
+import { Avatar, Badge, Card, Text } from 'react-native-paper';
 import { useNavigate } from 'react-router-native';
 import { UserMeal } from '../Meal/types';
 import { encode } from '../utils/encoding';
+import { useOffset } from './hooks';
 
 interface MealCardsProps {
   meals: UserMeal[] | null;
@@ -12,13 +13,15 @@ interface MealCardsProps {
 
 export const MealCards: React.FC<MealCardsProps> = ({ meals }) => {
   const navigate = useNavigate();
+  const offset = useOffset();
 
+  // TODO: clean this mess up
   return (
     <Fragment>
       <ScrollView
         contentContainerStyle={{ padding: 5 }}
         alwaysBounceVertical={true}>
-        <VStack fill spacing={8}>
+        <VStack fill spacing={8} mb={90}>
           {meals &&
             meals.map((meal, idx) => {
               const convDateTime = new Date(meal.timeLogged).toLocaleString();
@@ -29,7 +32,7 @@ export const MealCards: React.FC<MealCardsProps> = ({ meals }) => {
                   onPress={() => navigate(`/meal/${encode(String(meal.id))}`)}>
                   <Card.Title
                     title={
-                      idx === 0 ? (
+                      idx === 0 && offset === 1 ? (
                         <Text
                           style={{
                             fontSize: 30,
@@ -42,13 +45,13 @@ export const MealCards: React.FC<MealCardsProps> = ({ meals }) => {
                       )
                     }
                     subtitle={
-                      idx === 0 ? undefined : <Text>{convDateTime}</Text>
+                      idx === 0 && offset === 1 ? undefined : <Text>{convDateTime}</Text>
                     }
                     left={props => <Avatar.Icon {...props} icon="food" />}
                     right={meal.notified ? undefined : () => <Badge />}
                     rightStyle={{ margin: 10 }}
                   />
-                  {idx === 0 && (
+                  {idx === 0 && offset === 1 && (
                     <Card.Cover
                       source={{
                         uri: meal.photoUrl.toString(),
@@ -56,7 +59,7 @@ export const MealCards: React.FC<MealCardsProps> = ({ meals }) => {
                       style={{ margin: 5 }}
                     />
                   )}
-                  {idx === 0 && (
+                  {idx === 0 && offset === 1 && (
                     <Card.Content>
                       <Text variant="titleLarge">{meal.name}</Text>
                       <Text variant="bodyMedium">{convDateTime}</Text>
@@ -67,18 +70,6 @@ export const MealCards: React.FC<MealCardsProps> = ({ meals }) => {
             })}
         </VStack>
       </ScrollView>
-      <FAB
-        icon="plus"
-        style={{
-          position: 'absolute',
-          margin: 16,
-          right: 0,
-          bottom: 0,
-        }}
-        onPress={() => {
-          navigate('/meal/create');
-        }}
-      />
     </Fragment>
   );
 };
