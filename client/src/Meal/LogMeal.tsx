@@ -14,6 +14,7 @@ const StyledTextInput = styled(TextInput).attrs({
   mode: 'outlined',
   multiline: true,
   numberOfLines: 15,
+  maxLength: 512,
 })``;
 
 interface CreateMealDto {
@@ -97,6 +98,7 @@ export const LogMeal: React.FC = () => {
                 name: e.nativeEvent.text,
               })
             }
+            maxLength={128}
           />
         </View>
         <View>
