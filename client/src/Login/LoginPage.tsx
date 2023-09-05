@@ -1,7 +1,7 @@
 import { Box, VStack as Stack } from '@react-native-material/core';
 import { TextInput, Button } from 'react-native-paper';
 import { useState } from 'react';
-import { WatchTowerIcon } from '../common/icons/WatchTowerIcon';
+import { WatchTowerIcon } from '../common/Icons/WatchTowerIcon';
 import { store } from '../../store';
 import { useNavigate } from 'react-router-native';
 import { useSnackBar } from '../common/SnackBar/hook';

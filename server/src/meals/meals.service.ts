@@ -19,7 +19,7 @@ export class MealsService {
   findByUserId(userId: number, paginate: PaginateMeals): Promise<UserMeal[]> {
     const { searchTerm, pageLimit, offset } = paginate;
     const pageOffset = (offset - 1) * pageLimit;
-    
+
     return this.userMealRepo.find({
       where: {
         userId,
