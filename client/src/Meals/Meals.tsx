@@ -21,7 +21,7 @@ const Meals: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
         case true:
           return <MealCards meals={meals} />;
         case false:
-          return <NoResults noMeals={total === 0} />;
+          return <NoResults noMeals={!!total} />;
       }
   }
 };
