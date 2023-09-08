@@ -6,7 +6,7 @@ import {
 import { fromIni } from '@aws-sdk/credential-providers';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable } from '@nestjs/common';
-import { CreateGetUrlDto, CreatePutUrlDto } from './dto/create-url.dto';
+import { CreatePutUrlDto } from './dto/create-url.dto';
 
 const REGION = 'us-east-1';
 

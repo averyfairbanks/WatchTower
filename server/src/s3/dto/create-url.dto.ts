@@ -10,12 +10,3 @@ export class CreatePutUrlDto {
   @IsString()
   filename: string;
 }
-
-export class CreateGetUrlDto {
-  @IsString()
-  userId: string;
-
-  @IsString()
-  filename: string;
-}
-

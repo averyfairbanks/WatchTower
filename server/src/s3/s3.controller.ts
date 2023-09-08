@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { CreateGetUrlDto, CreatePutUrlDto } from './dto/create-url.dto';
+import { CreatePutUrlDto } from './dto/create-url.dto';
 import { S3Service } from './s3.service';
 
 @Controller()
