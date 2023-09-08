@@ -1,5 +1,8 @@
 import { UserMeal } from '../Meal/types';
-import { Paginated, PaginatedMealsRequest } from '../common/Pagination/Paginated';
+import {
+  Paginated,
+  PaginatedMealsRequest,
+} from '../common/Pagination/Paginated';
 import { SnackType } from '../common/SnackBar/types';
 
 export const handlePageChange = (
@@ -10,10 +13,10 @@ export const handlePageChange = (
   setIsLoading(true);
   setPagedMealsReq(s => {
     if (forward) {
-      return { ...s, offset: s.offset + 1 };
+      return { ...s, page: s.page + 1 };
     } else {
-      if (s.offset > 1) {
-        return { ...s, offset: s.offset - 1 };
+      if (s.page > 1) {
+        return { ...s, page: s.page - 1 };
       }
       return s;
     }

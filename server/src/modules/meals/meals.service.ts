@@ -1,91 +1,86 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { decode } from 'src/common/utils';
-import { Paginated } from 'src/models/paginated.model';
-import { PagingDetails } from 'src/models/paging-details.model';
-import { User } from 'src/modules/user/user.entity';
-import { DataSource, ILike, Repository } from 'typeorm';
-import { UserMeal } from './user-meal.entity';
+import { Paginated } from 'src/models/paginated-results.model';
+import { FindManyOptions, ILike, Repository } from 'typeorm';
+import { PaginateSearch } from '../../models/paginated-search.dto';
+import {
+  GetPagingDetailsDto,
+  Where,
+} from '../pagination/dto/get-paging-details.dto';
+import { PaginationService } from '../pagination/pagination.service';
+import { UserService } from '../user/user.service';
 import { CreateMealDto } from './dto/create-meal.dto';
-import { PaginateMeals } from './dto/paginate-meals.dto';
+import { UserMeal } from './user-meal.entity';
+import { IsNumber } from 'class-validator';
 
 @Injectable()
 export class MealsService {
   constructor(
     @InjectRepository(UserMeal)
     private readonly userMealRepo: Repository<UserMeal>,
-    @InjectRepository(User)
-    private readonly userRepo: Repository<User>,
-    private readonly dataSource: DataSource,
+    private readonly userService: UserService,
+    private readonly paginationService: PaginationService,
   ) {}
 
-  async findByUserId(
+  /**
+   * Find a single UserMeal by user.id and user_meal.id
+   * @param userId 
+   * @param mealId 
+   * @returns 
+   */
+  findOneById(userId: number, mealId: number): Promise<UserMeal> {
+    return this.userMealRepo.findOneBy({ userId, id: mealId });
+  }
+
+  /**
+   * Find all UserMeals by user.id
+   * @param userId - user_meal.id
+   * @param paginate - details for paginating the response
+   * @returns - Promise of Paginated<UserMeals>
+   */
+  async findAllByUserId(
     userId: number,
-    paginate: PaginateMeals,
+    paginate: PaginateSearch,
   ): Promise<Paginated<UserMeal>> {
-    const { searchTerm, pageLimit, offset } = paginate;
-    const { min, max, total } = await this.getPagingDetails(userId, searchTerm);
+    const { searchTerm } = paginate;
 
-    const pageOffset = (offset - 1) * pageLimit;
+    const getPagingDetailsDto: GetPagingDetailsDto =
+      this.buildGetPagingDetailsDto(userId, searchTerm);
 
-    const meals = await this.userMealRepo.find({
-      where: {
-        userId,
-        name: searchTerm ? ILike(`%${searchTerm}%`) : undefined,
-      },
-      order: {
-        id: 'DESC',
-      },
-      take: pageLimit ? pageLimit : undefined,
-      skip: pageOffset ? pageOffset : undefined,
-    });
+    const { min, max, total } =
+      await this.paginationService.getPagingDetails(getPagingDetailsDto);
+
+    const options = this.buildFindOptions(userId, paginate);
+    const meals = await this.userMealRepo.find(options);
 
     const paginatedMeals: Paginated<UserMeal> = {
       entities: meals,
       pageDetails: {
         hasForward: meals[meals.length - 1]?.id > min,
         hasBackward: meals[0]?.id < max,
-        total: total,
+        total,
       },
     };
 
     return paginatedMeals;
   }
 
-  getPagingDetails(userId: number, searchTerm: string): Promise<PagingDetails> {
-    const qb = this.dataSource
-      .createQueryBuilder()
-      .select('min(id)', 'min')
-      .addSelect('max(id)', 'max')
-      .addSelect('count(id)', 'total')
-      .from(UserMeal, 'user_meal')
-      .where('user_meal.user_id = :userId', {
-        userId,
-      });
-
-    if (searchTerm) {
-      qb.andWhere('user_meal.name ilike :searchTerm', { searchTerm });
-    }
-
-    return qb.getRawOne();
-  }
-
-  findOneById(userId: number, mealId: number): Promise<UserMeal> {
-    return this.userMealRepo.findOneBy({ userId, id: mealId });
-  }
-
+  /**
+   * Create new user_meal table row
+   * @param createMealDto 
+   * @returns 
+   */
   async createNewMeal(createMealDto: CreateMealDto): Promise<UserMeal> {
-    const user = await this.userRepo.findOneBy({
-      id: decode(createMealDto.userId),
-    });
+    const userId = decode(createMealDto.userId);
+    const user = await this.userService.findUserById(userId).then((user) => {
+      if (user === null) {
+        const errMsg = `User with id ${userId} was not found`;
+        throw new HttpException(errMsg, HttpStatus.NOT_FOUND);
+      }
 
-    if (user === null) {
-      const errMsg = `User with id ${createMealDto.userId} was not found`;
-      throw new HttpException(errMsg, HttpStatus.NOT_FOUND, {
-        cause: new Error(errMsg),
-        description: errMsg,
-      });
-    }
+      return user;
+    });
 
     const { name, description, photoUrl } = createMealDto;
 
@@ -97,5 +92,54 @@ export class MealsService {
     };
 
     return this.userMealRepo.save(userMeal);
+  }
+
+  private buildGetPagingDetailsDto(
+    userId: number,
+    searchTerm: string,
+  ): GetPagingDetailsDto {
+    const wheres = this.buildWheres(userId, searchTerm);
+
+    return {
+      type: UserMeal,
+      tableName: 'user_meal',
+      wheres,
+    };
+  }
+
+  private buildWheres(userId: number, searchTerm: string): Where[] {
+    // build pagination request starting with where statements
+    const wheres: Where[] = [
+      { whereStatement: 'user_meal.user_id = :userId', argument: { userId } },
+    ];
+
+    if (searchTerm) {
+      wheres.push({
+        whereStatement: "user_meal.name ilike ('%' || :searchTerm || '%')",
+        argument: { searchTerm },
+      });
+    }
+
+    return wheres;
+  }
+
+  private buildFindOptions(
+    userId: number,
+    paginate: PaginateSearch,
+  ): FindManyOptions<UserMeal> {
+    const { searchTerm, page: offset, pageLimit } = paginate;
+    const pageOffset = (offset - 1) * pageLimit;
+
+    return {
+      where: {
+        userId,
+        name: searchTerm ? ILike(`%${searchTerm}%`) : undefined,
+      },
+      order: {
+        id: 'DESC',
+      },
+      take: pageLimit ? pageLimit : undefined,
+      skip: pageOffset ? pageOffset : undefined,
+    };
   }
 }

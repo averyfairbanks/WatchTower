@@ -10,5 +10,5 @@ export interface Paginated<T> {
 export interface PaginatedMealsRequest {
   searchTerm: string;
   pageLimit: number;
-  offset: number;
+  page: number;
 }
