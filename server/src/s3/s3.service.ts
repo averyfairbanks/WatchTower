@@ -34,15 +34,4 @@ export class S3Service {
       expiresIn: 3600,
     });
   }
-
-  getPresignedGetUrl(dto: CreateGetUrlDto): Promise<string> {
-    const {userId, filename} = dto;
-
-    const command = new GetObjectCommand({
-      Bucket: 'wt-user-images',
-      Key: `${userId}/meals/${filename}`,
-    });
-
-    return getSignedUrl(this.s3Client, command, {expiresIn: 200000})
-  }
 }

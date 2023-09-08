@@ -10,9 +10,4 @@ export class S3Controller {
   getPresignedPutUrl(@Body() dto: CreatePutUrlDto): Promise<string> {
     return this.s3Service.getPresignedPutUrl(dto);
   }
-
-  @Post('photo-url')
-  getPresignedGetUrl(@Body() dto: CreateGetUrlDto): Promise<string> {
-    return this.s3Service.getPresignedGetUrl(dto);
-  }
 }
