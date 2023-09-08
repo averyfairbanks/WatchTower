@@ -1,0 +1,15 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Query {
+  user(id: String!): User!
+}
+
+"""Represents an app user"""
+type User {
+  email: String!
+  firstName: String!
+  id: Float!
+  lastName: String!
+}
