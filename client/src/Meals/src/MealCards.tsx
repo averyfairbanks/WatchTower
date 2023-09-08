@@ -3,9 +3,9 @@ import { Fragment } from 'react';
 import { ScrollView } from 'react-native';
 import { Avatar, Badge, Card, Text } from 'react-native-paper';
 import { useNavigate } from 'react-router-native';
-import { UserMeal } from '../Meal/types';
-import { encode } from '../utils/encoding';
-import { useOffset } from './hooks';
+import { UserMeal } from '../../Meal/types';
+import { encode } from '../../utils/encoding';
+import { useOffset } from '../hooks';
 
 interface MealCardsProps {
   meals: UserMeal[] | null;

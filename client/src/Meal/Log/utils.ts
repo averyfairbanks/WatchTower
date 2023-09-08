@@ -1,11 +1,23 @@
+import { FormikErrors } from 'formik';
 import { Asset, launchImageLibrary } from 'react-native-image-picker';
 import { NavigateFunction } from 'react-router-native';
-import { SnackType } from '../common/SnackBar/types';
-import { CreateMealDto } from './types';
+import { mixed, object, string } from 'yup';
+import { SnackType } from '../../common/SnackBar/types';
+import { CreateMealDto, LogMealFormValues } from './types';
+
+export const validationSchema = object().shape({
+  userId: string().required(),
+  name: string().required(),
+  description: string().required(),
+  image: mixed<Asset>().required(),
+});
 
 export const _pickImage = (
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  setImage: React.Dispatch<React.SetStateAction<Asset | undefined>>,
+  setImage: (
+    field: 'image',
+    value: Asset,
+  ) => Promise<void | FormikErrors<unknown>>,
   addSnack: (message: string, type: SnackType) => null,
 ) => {
   setIsLoading(true);
@@ -16,7 +28,7 @@ export const _pickImage = (
   })
     .then(file => {
       if (!file.didCancel && file && file.assets && file.assets[0]) {
-        setImage(file.assets[0]);
+        setImage('image', file.assets[0]);
       }
       setIsLoading(false);
     })
@@ -29,14 +41,15 @@ export const _pickImage = (
 // handler for submitting new photo/meal
 export const handleLogMeal = async (
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  image: Asset | undefined,
-  userId: string,
-  createDto: Omit<CreateMealDto, 'photoUrl'>,
+  formValues: LogMealFormValues,
   navigate: NavigateFunction,
   addSnack: (message: string, type: SnackType) => null,
 ) => {
   setIsLoading(true);
+
   try {
+    const { userId, name, description, image } = formValues;
+
     if (image?.uri && image?.type) {
       // if image exists, fetch image blob
       const { uri, type } = image;
@@ -89,6 +102,14 @@ export const handleLogMeal = async (
         }
       });
 
+      // build createDto
+      const createDto: CreateMealDto = {
+        userId,
+        name,
+        description,
+        photoUrl: `${userId}/meals/${filename}`,
+      };
+
       // finally, if file upload successful, submit complete meal details to db
       await fetch(`http://localhost:3000/meal/create`, {
         method: 'POST',
@@ -96,10 +117,7 @@ export const handleLogMeal = async (
           Accept: 'application/json',
           'Content-Type': 'application/json; charset=utf-8',
         },
-        body: JSON.stringify({
-          ...createDto,
-          photoUrl: `${userId}/meals/${filename}`,
-        }),
+        body: JSON.stringify(createDto),
       })
         .then(async res => {
           if (res.ok) {
@@ -117,7 +135,7 @@ export const handleLogMeal = async (
         });
     } else {
       addSnack(
-        'Cannot submit with a picture! Take your best shot ;)',
+        'Cannot submit without a picture! Take your best shot ;)',
         SnackType.WARNING,
       );
       setIsLoading(false);

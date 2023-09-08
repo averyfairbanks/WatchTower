@@ -1,16 +1,16 @@
 import { ReactNode, createContext, useEffect, useState } from 'react';
-import { FAB, Surface, useTheme } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 import { useNavigate } from 'react-router-native';
-import styled from 'styled-components';
-import { UserMeal } from '../Meal/types';
-import { useSearchbarContext } from '../common/AppBar/hook';
+import { UserMeal } from '../../Meal/types';
+import { useSearchbarContext } from '../../common/AppBar/hook';
 import {
   Paginated,
   PaginatedMealsRequest,
-} from '../common/Pagination/Paginated';
-import { useSnackBar } from '../common/SnackBar/hook';
-import { SnackType } from '../common/SnackBar/types';
-import { _getUserDetails } from '../utils/storeMethods';
+} from '../../common/Pagination/Paginated';
+import { useSnackBar } from '../../common/SnackBar/hook';
+import { _getUserDetails } from '../../utils/storeMethods';
+import { fetchMeals, handlePageChange } from '../utils';
+import { BottomBar, LogMealButton, Paginator } from './styled';
 
 /* Context for useMeals hook */
 export const MealContext = createContext({
@@ -23,21 +23,6 @@ export const MealContext = createContext({
 } as Paginated<UserMeal> | null);
 
 export const OffsetContext = createContext(0);
-
-/* Styled components appear not be "export-able" */
-const PaginateFAB = styled(FAB).attrs({ variant: 'surface' })`
-  position: absolute;
-  bottom: 10px;
-  border-radius: 30px;
-`;
-
-const StyledSurface = styled(Surface)`
-  position: absolute;
-  height: 80px;
-  bottom: 0px;
-  right: 0px;
-  left: 0px;
-`;
 
 /**
  * Main Component and Props
@@ -82,21 +67,6 @@ export const MealsProvider: React.FC<MealLoaderProps> = ({
   // destructure with defaults
   const { meals, hasBackward, hasForward } = safeDestructure(pagedMeals);
 
-  // handlePageChange
-  const handlePageChange = (forward: boolean) => {
-    setIsLoading(true);
-    setPagedMealsReq(s => {
-      if (forward) {
-        return { ...s, offset: s.offset + 1 };
-      } else {
-        if (s.offset > 1) {
-          return { ...s, offset: s.offset - 1 };
-        }
-        return s;
-      }
-    });
-  };
-
   // update searchTerm in request
   useEffect(() => {
     setPagedMealsReq({ ...pagedMealsReq, searchTerm });
@@ -119,39 +89,37 @@ export const MealsProvider: React.FC<MealLoaderProps> = ({
         {children}
         {!!meals.length && (
           <>
-            <StyledSurface
+            <BottomBar
               style={{
                 backgroundColor: theme.colors.primary,
               }}>
               {hasBackward && (
-                <PaginateFAB
+                <Paginator
                   disabled={!hasBackward}
                   icon="arrow-left"
                   style={{ left: 10 }}
-                  onPress={() => handlePageChange(false)}
+                  onPress={() =>
+                    handlePageChange(false, setIsLoading, setPagedMealsReq)
+                  }
                 />
               )}
-              <FAB
-                icon="plus"
-                variant="surface"
-                style={{
-                  position: 'absolute',
-                  alignSelf: 'center',
-                  bottom: 10,
-                }}
+              <LogMealButton
+                label=''
                 onPress={() => {
                   navigate('/meal/create');
                 }}
               />
               {hasForward && (
-                <PaginateFAB
+                <Paginator
                   disabled={!hasForward}
                   icon="arrow-right"
                   style={{ right: 10 }}
-                  onPress={() => handlePageChange(true)}
+                  onPress={() =>
+                    handlePageChange(true, setIsLoading, setPagedMealsReq)
+                  }
                 />
               )}
-            </StyledSurface>
+            </BottomBar>
           </>
         )}
       </OffsetContext.Provider>
@@ -169,40 +137,4 @@ function safeDestructure(pagedMeals: Paginated<UserMeal> | null) {
   const { hasBackward, hasForward } = pageDetails;
 
   return { meals, hasBackward, hasForward };
-}
-
-function fetchMeals(
-  userId: string,
-  pagedMealsReq: PaginatedMealsRequest,
-  setPagedMeals: (
-    value: React.SetStateAction<Paginated<UserMeal> | null>,
-  ) => void,
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  addSnack: (message: string, type: SnackType) => null,
-) {
-  fetch(`http://localhost:3000/meals/${userId}`, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json; charset=utf-8',
-    },
-    body: JSON.stringify(pagedMealsReq),
-  })
-    .then(async res => {
-      if (res.ok) {
-        return res.json();
-      }
-
-      const body = await res.json();
-      throw new Error(`${body.statusCode}, ${body.statusText}`);
-    })
-    .then(val => {
-      setPagedMeals(val);
-      setIsLoading(false);
-    })
-    .catch(err => {
-      console.log(err);
-      setIsLoading(false);
-      addSnack('Error retrieving meals', SnackType.FAILURE);
-    });
 }
