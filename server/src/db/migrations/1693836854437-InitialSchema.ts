@@ -14,7 +14,7 @@ export class InitialSchema1693836854437 implements MigrationInterface {
             CREATE TABLE IF NOT EXISTS user_meal (
                 id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                 user_id BIGINT NOT NULL,
-                name VARCHAR(128) NOT NULL,
+                name VARCHAR(64) NOT NULL,
                 description VARCHAR(512),
                 photo_url VARCHAR(512),
                 time_logged TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,

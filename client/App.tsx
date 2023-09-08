@@ -1,12 +1,13 @@
-import { NativeRouter, Route, Routes, Navigate } from 'react-router-native';
-import { LoginPage } from './src/Login/LoginPage';
-import { _isDarkMode, _isLoggedIn } from './src/utils/storeMethods';
-import { Home } from './src/Home/Home';
-import { SnackBarProvider } from './src/common/SnackBar/SnackBarProvider';
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from 'react-native-paper';
+import { NativeRouter, Navigate, Route, Routes } from 'react-router-native';
+import { Home } from './src/Home/Home';
+import { LoginPage } from './src/Login/LoginPage';
+import { LogMeal } from './src/Meal/Log/LogMeal';
 import { Meal } from './src/Meal/Meal';
 import { AppBarProvider } from './src/common/AppBar/AppBarProvider';
-import { LogMeal } from './src/Meal/LogMeal';
+import { SnackBarProvider } from './src/common/SnackBar/SnackBarProvider';
+import { WTRoutes } from './src/routes';
+import { _isDarkMode, _isLoggedIn } from './src/utils/storeMethods';
 
 const App = (): JSX.Element => {
   const theme = _isDarkMode() ? MD3DarkTheme : MD3LightTheme;
@@ -17,20 +18,20 @@ const App = (): JSX.Element => {
         <SnackBarProvider>
           <AppBarProvider>
             <Routes>
-              <Route path="/login" element={<LoginPage />} />
               <Route
-                path="/"
+                path={WTRoutes.Entry}
                 element={
                   _isLoggedIn() ? (
-                    <Navigate to="/home" replace />
+                    <Navigate to={WTRoutes.Home} replace />
                   ) : (
-                    <LoginPage />
+                    <Navigate to={WTRoutes.Login} replace />
                   )
                 }
               />
-              <Route path="/home" element={<Home />} />
-              <Route path="/meal/:id" element={<Meal />} />
-              <Route path="/meal/create" element={<LogMeal />} />
+              <Route path={WTRoutes.Login} element={<LoginPage />} />
+              <Route path={WTRoutes.Home} element={<Home />} />
+              <Route path={WTRoutes.Meal} element={<Meal />} />
+              <Route path={WTRoutes.LogMeal} element={<LogMeal />} />
             </Routes>
           </AppBarProvider>
         </SnackBarProvider>
