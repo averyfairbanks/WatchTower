@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/db/entities/user.entity';
+import { decode } from 'src/common/utils';
 import { Paginated } from 'src/models/paginated.model';
 import { PagingDetails } from 'src/models/paging-details.model';
-import { decode } from 'src/utils';
+import { User } from 'src/modules/user/user.entity';
 import { DataSource, ILike, Repository } from 'typeorm';
-import { UserMeal } from '../db/entities/user-meal.entity';
+import { UserMeal } from './user-meal.entity';
 import { CreateMealDto } from './dto/create-meal.dto';
 import { PaginateMeals } from './dto/paginate-meals.dto';
 

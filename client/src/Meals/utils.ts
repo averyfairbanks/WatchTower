@@ -2,7 +2,6 @@ import { UserMeal } from '../Meal/types';
 import { Paginated, PaginatedMealsRequest } from '../common/Pagination/Paginated';
 import { SnackType } from '../common/SnackBar/types';
 
-// handlePageChange
 export const handlePageChange = (
   forward: boolean,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,

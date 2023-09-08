@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { UserMeal } from 'src/db/entities/user-meal.entity';
+import { decode } from 'src/common/utils';
+import { UserMeal } from './user-meal.entity';
 import { Paginated } from 'src/models/paginated.model';
-import { decode } from 'src/utils';
 import { CreateMealDto } from './dto/create-meal.dto';
 import { PaginateMeals } from './dto/paginate-meals.dto';
 import { MealsService } from './meals.service';
