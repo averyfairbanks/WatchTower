@@ -1,16 +1,16 @@
 import { ReactNode, createContext, useEffect, useState } from 'react';
 import { useTheme } from 'react-native-paper';
 import { useNavigate } from 'react-router-native';
-import { UserMeal } from '../../Meal/types';
-import { useSearchbarContext } from '../../common/AppBar/hook';
+import { UserMeal } from '../Meal/types';
+import { useSearchbarContext } from '../common/AppBar/hook';
 import {
   Paginated,
   PaginatedMealsRequest,
-} from '../../common/Pagination/Paginated';
-import { useSnackBar } from '../../common/SnackBar/hook';
-import { _getUserDetails } from '../../utils/storeMethods';
-import { fetchMeals, handlePageChange } from '../utils';
+} from '../common/Pagination/Paginated';
+import { useSnackBar } from '../common/SnackBar/hook';
+import { _getUserDetails } from '../utils/storeMethods';
 import { BottomBar, LogMealButton, Paginator } from './styled';
+import { fetchMeals, handlePageChange } from './utils';
 
 /* Context for useMeals hook */
 export const MealContext = createContext({
@@ -104,7 +104,7 @@ export const MealsProvider: React.FC<MealLoaderProps> = ({
                 />
               )}
               <LogMealButton
-                label=''
+                label=""
                 onPress={() => {
                   navigate('/meal/create');
                 }}

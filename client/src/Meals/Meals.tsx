@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Loading } from '../../common/Loading/Loading';
-import { NoResults } from '../../common/NoResultsPage.tsx/NoResults';
-import { useMeals } from '../hooks';
+import { Loading } from '../common/Loading/Loading';
+import { NoResults } from '../common/NoResultsPage.tsx/NoResults';
 import { MealCards } from './MealCards';
 import { MealsProvider } from './MealsProvider';
+import { useMeals } from './hooks';
 
 const Meals: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
   const pagedMeals = useMeals();

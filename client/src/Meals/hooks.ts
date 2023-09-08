@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { MealContext, OffsetContext } from './src/MealsProvider';
+import { MealContext, OffsetContext } from './MealsProvider';
 
 export const useMeals = () => {
   return useContext(MealContext);
