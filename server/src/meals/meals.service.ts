@@ -93,7 +93,7 @@ export class MealsService {
       userId: user.id,
       name,
       description,
-      photoUrl,
+      photoUrl: `${process.env.REACT_APP_PHOTO_HOST}/${photoUrl}`,
     };
 
     return this.userMealRepo.save(userMeal);

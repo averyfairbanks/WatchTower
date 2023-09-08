@@ -1,13 +1,14 @@
 import { VStack } from '@react-native-material/core';
 import { useCallback, useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import DocumentPicker from 'react-native-document-picker';
+import { Asset } from 'react-native-image-picker';
 import { Button, Text, TextInput } from 'react-native-paper';
 import { useNavigate } from 'react-router-native';
 import styled from 'styled-components/native';
 import { useSnackBar } from '../common/SnackBar/hook';
-import { SnackType } from '../common/SnackBar/types';
 import { _getUserDetails } from '../utils/storeMethods';
+import { CreateMealDto } from './types';
+import { _pickImage, handleLogMeal } from './utils';
 
 const StyledText = styled(Text).attrs({ variant: 'titleLarge' })``;
 const StyledTextInput = styled(TextInput).attrs({
@@ -17,72 +18,27 @@ const StyledTextInput = styled(TextInput).attrs({
   maxLength: 512,
 })``;
 
-interface CreateMealDto {
-  userId: string;
-  name: string;
-  description: string;
-  photoUrl: string;
-}
-
 export const LogMeal: React.FC = () => {
-  const { addSnack } = useSnackBar();
+  // context/utility hooks
   const navigate = useNavigate();
-
+  const { addSnack } = useSnackBar();
   const { id: userId } = _getUserDetails();
 
+  // loading status, classic
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [createDto, setCreateDto] = useState<CreateMealDto>({
+
+  // update dto sans the photourl, for async state update reasons
+  const [createDto, setCreateDto] = useState<Omit<CreateMealDto, 'photoUrl'>>({
     name: '',
     description: '',
     userId,
-    photoUrl: 'https://picsum.photos/900',
   });
 
-  const pickFile = useCallback(async () => {
-    setIsLoading(true);
-    DocumentPicker.pick({
-      type: [DocumentPicker.types.images],
-    })
-      .then(res => {
-        console.log(res.toString());
-        setIsLoading(false);
-      })
-      .catch(err => {
-        console.log(err);
-        setIsLoading(false);
-        addSnack('Error uploading file', SnackType.FAILURE);
-      });
+  // image state and callback w/ select logic
+  const [image, setImage] = useState<Asset>();
+  const pickImage = useCallback(async () => {
+    _pickImage(setIsLoading, setImage, addSnack);
   }, []);
-
-  const handleLogMeal = () => {
-    setIsLoading(true);
-    fetch(`http://localhost:3000/meal/create`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json; charset=utf-8',
-      },
-      body: JSON.stringify(createDto),
-    })
-      .then(async res => {
-        if (res.ok) {
-          return res.json();
-        }
-
-        const body = await res.json();
-        throw new Error(`${body.statusCode}, ${body.statusText}`);
-      })
-      .then(json => {
-        console.log(json);
-        setIsLoading(false);
-        navigate(-1);
-      })
-      .catch(err => {
-        console.log(err);
-        setIsLoading(false);
-        addSnack('Error logging new meal!', SnackType.FAILURE);
-      });
-  };
 
   return (
     <ScrollView contentContainerStyle={{ flex: 1 }}>
@@ -116,14 +72,26 @@ export const LogMeal: React.FC = () => {
         <Button
           mode="elevated"
           icon="camera"
-          onPress={pickFile}
+          onPress={pickImage}
           disabled={isLoading}>
           Upload Photo
         </Button>
+        {image && <Text style={{ alignSelf: 'center' }}>{image.fileName}</Text>}
         <Button
           mode="elevated"
-          onPress={handleLogMeal}
-          disabled={isLoading}
+          onPress={() =>
+            handleLogMeal(
+              setIsLoading,
+              image,
+              userId,
+              createDto,
+              navigate,
+              addSnack,
+            )
+          }
+          disabled={
+            isLoading || !(createDto.name && createDto.description && image)
+          }
           style={{
             position: 'absolute',
             start: 16,
