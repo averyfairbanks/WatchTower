@@ -1,8 +1,7 @@
 import { VStack } from '@react-native-material/core';
 import { useCallback, useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import DocumentPicker from 'react-native-document-picker';
-import { readFile } from 'react-native-fs';
+import { Asset, launchImageLibrary } from 'react-native-image-picker';
 import { Button, Text, TextInput } from 'react-native-paper';
 import { useNavigate } from 'react-router-native';
 import styled from 'styled-components/native';
@@ -32,126 +31,108 @@ export const LogMeal: React.FC = () => {
   const { id: userId } = _getUserDetails();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [createDto, setCreateDto] = useState<CreateMealDto>({
+  const [createDto, setCreateDto] = useState<Omit<CreateMealDto, 'photoUrl'>>({
     name: '',
     description: '',
     userId,
-    photoUrl: 'https://picsum.photos/900',
   });
 
   const b64toBlob = (base64: string, type = 'application/octet-stream') =>
     fetch(`data:${type};base64,${base64}`).then(res => res.blob());
 
+  const [image, setImage] = useState<Asset>();
   const pickFile = useCallback(async () => {
     setIsLoading(true);
-    DocumentPicker.pick({
-      type: [DocumentPicker.types.images],
+    launchImageLibrary({
+      mediaType: 'photo',
+      quality: 0.6,
+      selectionLimit: 1,
     })
-      .then(async res => {
-        if (res[0]) {
-          const file = await readFile(res[0].uri, 'base64');
-          return { file, type: res[0].type };
+      .then(file => {
+        if (!file.didCancel && file && file.assets && file.assets[0]) {
+          setImage(file.assets[0]);
+          setIsLoading(false);
         }
-        throw new Error('Error resolving image path');
-      })
-      .then(async ({ file }) => {
-       console.log(file)
-      });
-    // .then(async ({ file: fileBody, type }) => {
-
-    //   console.log(fileBody.slice(0, 50));
-    //   throw Error('hi :)')
-    //   const filename = `${Date.now()}_meal.${type?.replace('image/', '')}`;
-
-    //   const res = await fetch(`http://localhost:3000/photo-upload/create`, {
-    //     method: 'POST',
-    //     headers: {
-    //       Accept: '*/*',
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       userId,
-    //       type,
-    //       filename,
-    //     }),
-    //   });
-
-    //   const signedUrl = await res.text();
-
-    //   return { file: { filename, fileBody, type }, signedUrl };
-    // })
-    // .then(async ({ file, signedUrl }) => {
-    //   const { type, fileBody, filename } = file;
-
-    //   const res = await fetch(signedUrl.toString(), {
-    //     method: 'PUT',
-    //     headers: {
-    //       Accept: 'application/json',
-    //       'Content-Type': `${type}; charset=ascii`,
-    //     },
-    //     body: JSON.stringify(fileBody),
-    //   });
-
-    //   if (res.ok) {
-    //     return filename;
-    //   }
-
-    //   throw new Error('Error uploading file');
-    // })
-    // .then(async filename => {
-    //   const res = await fetch(`http://localhost:3000/photo-url`, {
-    //     method: 'POST',
-    //     headers: {
-    //       Accept: '*/*',
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       userId,
-    //       filename,
-    //     }),
-    //   });
-
-    //   return res.text();
-    // })
-    // .then(photoUrl => {
-    //   setCreateDto({ ...createDto, photoUrl });
-    //   setIsLoading(false);
-    // })
-    // .catch(err => {
-    //   console.log(err);
-    //   setIsLoading(false);
-    //   addSnack('Error uploading file', SnackType.FAILURE);
-    // });
-  }, []);
-
-  const handleLogMeal = () => {
-    setIsLoading(true);
-    fetch(`http://localhost:3000/meal/create`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json; charset=utf-8',
-      },
-      body: JSON.stringify(createDto),
-    })
-      .then(async res => {
-        if (res.ok) {
-          return res.json();
-        }
-
-        const body = await res.json();
-        throw new Error(`${body.statusCode}, ${body.statusText}`);
-      })
-      .then(json => {
-        console.log(json);
-        setIsLoading(false);
-        navigate(-1);
       })
       .catch(err => {
         console.log(err);
-        setIsLoading(false);
-        addSnack('Error logging new meal!', SnackType.FAILURE);
+        addSnack('Error collecting your file!', SnackType.FAILURE);
       });
+  }, []);
+
+  const handleLogMeal = async () => {
+    setIsLoading(true);
+    try {
+      if (image?.uri && image?.type) {
+        const { uri, type } = image;
+        const blob = await fetch(uri).then(res => {
+          return res.blob();
+        });
+
+        if (blob) {
+          const filename = `${Date.now()}_meal.${type?.replace('image/', '')}`;
+
+          const signedUrl = await fetch(
+            `http://localhost:3000/photo-upload/create`,
+            {
+              method: 'POST',
+              headers: {
+                Accept: '*/*',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                userId,
+                type,
+                filename,
+              }),
+            },
+          ).then(res => res.text());
+
+          const putImage = await fetch(signedUrl.toString(), {
+            method: 'PUT',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': `${type}; charset=ascii`,
+            },
+            body: blob,
+          }).then(res => {
+            if (!res.ok) {
+              console.log(res.status);
+              throw new Error('Error uploading file');
+            }
+          });
+
+          await fetch(`http://localhost:3000/meal/create`, {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json; charset=utf-8',
+            },
+            body: JSON.stringify({
+              ...createDto,
+              photoUrl: `${userId}/meals/${filename}`,
+            }),
+          })
+            .then(async res => {
+              if (res.ok) {
+                return res.json();
+              }
+
+              const body = await res.json();
+              throw new Error(`${body.statusCode}, ${body.statusText}`);
+            })
+            .then(json => {
+              console.log(json);
+              setIsLoading(false);
+              navigate(-1);
+            });
+        }
+      }
+    } catch (err) {
+      console.log(err);
+      setIsLoading(false);
+      addSnack('Error logging new meal!', SnackType.FAILURE);
+    }
   };
 
   return (
@@ -190,10 +171,11 @@ export const LogMeal: React.FC = () => {
           disabled={isLoading}>
           Upload Photo
         </Button>
+        {image && <Text>{image.fileName}</Text>}
         <Button
           mode="elevated"
           onPress={handleLogMeal}
-          disabled={isLoading}
+          disabled={isLoading || !(createDto.name && createDto.description && image)}
           style={{
             position: 'absolute',
             start: 16,

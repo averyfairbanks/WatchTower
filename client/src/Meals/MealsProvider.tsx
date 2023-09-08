@@ -15,6 +15,11 @@ import { _getUserDetails } from '../utils/storeMethods';
 /* Context for useMeals hook */
 export const MealContext = createContext({
   entities: [] as UserMeal[],
+  pageDetails: {
+    hasBackward: false,
+    hasForward: false,
+    total: 0,
+  },
 } as Paginated<UserMeal> | null);
 
 export const OffsetContext = createContext(0);
