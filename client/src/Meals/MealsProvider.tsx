@@ -55,7 +55,7 @@ export const MealsProvider: React.FC<MealLoaderProps> = ({
   // request state
   const [pagedMealsReq, setPagedMealsReq] = useState<PaginatedMealsRequest>({
     searchTerm,
-    offset: 1,
+    page: 1,
     pageLimit: 10,
   });
 
@@ -85,7 +85,7 @@ export const MealsProvider: React.FC<MealLoaderProps> = ({
 
   return (
     <MealContext.Provider value={pagedMeals}>
-      <OffsetContext.Provider value={pagedMealsReq.offset}>
+      <OffsetContext.Provider value={pagedMealsReq.page}>
         {children}
         {!!meals.length && (
           <>

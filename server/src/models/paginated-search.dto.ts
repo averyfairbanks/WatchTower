@@ -1,6 +1,6 @@
 import { IsNumber, IsString } from 'class-validator';
 
-export class PaginateMeals {
+export class PaginateSearch {
   @IsString()
   readonly searchTerm: string;
 
@@ -8,5 +8,5 @@ export class PaginateMeals {
   readonly pageLimit: number;
 
   @IsNumber()
-  readonly offset: number;
+  readonly page: number;
 }

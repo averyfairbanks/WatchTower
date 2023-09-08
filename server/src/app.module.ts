@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserMeal } from './db/entities/user-meal.entity';
-import { User } from './db/entities/user.entity';
+import { UserMeal } from './modules/meals/user-meal.entity';
 import { InitialSchema1693836854437 as InitialSchema } from './db/migrations/1693836854437-InitialSchema';
-import { MealsModule } from './meals/meals.modules';
-import { S3Module } from './s3/s3.module';
+import { MealsModule } from './modules/meals/meals.modules';
+import { User } from './modules/user/user.entity';
+import { S3Module } from './modules/s3/s3.module';
 
 @Module({
   imports: [
