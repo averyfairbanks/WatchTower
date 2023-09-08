@@ -25,21 +25,22 @@ interface CreateMealDto {
 }
 
 export const LogMeal: React.FC = () => {
-  const { addSnack } = useSnackBar();
+  // context/utility hooks
   const navigate = useNavigate();
-
+  const { addSnack } = useSnackBar();
   const { id: userId } = _getUserDetails();
 
+  // loading status, classic
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // update dto sans the photourl, for async state update reasons
   const [createDto, setCreateDto] = useState<Omit<CreateMealDto, 'photoUrl'>>({
     name: '',
     description: '',
     userId,
   });
 
-  const b64toBlob = (base64: string, type = 'application/octet-stream') =>
-    fetch(`data:${type};base64,${base64}`).then(res => res.blob());
-
+  // image state and callback w/ select logic
   const [image, setImage] = useState<Asset>();
   const pickFile = useCallback(async () => {
     setIsLoading(true);
@@ -51,8 +52,8 @@ export const LogMeal: React.FC = () => {
       .then(file => {
         if (!file.didCancel && file && file.assets && file.assets[0]) {
           setImage(file.assets[0]);
-          setIsLoading(false);
         }
+        setIsLoading(false);
       })
       .catch(err => {
         console.log(err);
@@ -60,15 +61,18 @@ export const LogMeal: React.FC = () => {
       });
   }, []);
 
+  // handler for submitting new photo/meal
   const handleLogMeal = async () => {
     setIsLoading(true);
     try {
       if (image?.uri && image?.type) {
+        // if image exists, fetch image blob
         const { uri, type } = image;
         const blob = await fetch(uri).then(res => {
           return res.blob();
         });
 
+        // if blob was successfully fetch, create presigned upload url
         if (blob) {
           const filename = `${Date.now()}_meal.${type?.replace('image/', '')}`;
 
@@ -86,8 +90,16 @@ export const LogMeal: React.FC = () => {
                 filename,
               }),
             },
-          ).then(res => res.text());
+          ).then(async res => {
+            if (res.ok) {
+              return res.text();
+            }
 
+            const body = await res.json();
+            throw new Error(`${body.statusCode}, ${body.statusText}`);
+          });
+
+          // if url generated successfully, upload file
           const putImage = await fetch(signedUrl.toString(), {
             method: 'PUT',
             headers: {
@@ -102,6 +114,7 @@ export const LogMeal: React.FC = () => {
             }
           });
 
+          // finally, if file upload successful, submit complete meal details to db
           await fetch(`http://localhost:3000/meal/create`, {
             method: 'POST',
             headers: {
@@ -121,12 +134,15 @@ export const LogMeal: React.FC = () => {
               const body = await res.json();
               throw new Error(`${body.statusCode}, ${body.statusText}`);
             })
-            .then(json => {
-              console.log(json);
+            .then(userMeal => {
+              // userMeal should contain the newly created UserMeal object
+              console.log(userMeal);
               setIsLoading(false);
               navigate(-1);
             });
         }
+      } else {
+        setIsLoading(false);
       }
     } catch (err) {
       console.log(err);
@@ -171,11 +187,13 @@ export const LogMeal: React.FC = () => {
           disabled={isLoading}>
           Upload Photo
         </Button>
-        {image && <Text>{image.fileName}</Text>}
+        {image && <Text style={{ alignSelf: 'center' }}>{image.fileName}</Text>}
         <Button
           mode="elevated"
           onPress={handleLogMeal}
-          disabled={isLoading || !(createDto.name && createDto.description && image)}
+          disabled={
+            isLoading || !(createDto.name && createDto.description && image)
+          }
           style={{
             position: 'absolute',
             start: 16,
