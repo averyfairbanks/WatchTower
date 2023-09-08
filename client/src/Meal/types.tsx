@@ -7,3 +7,10 @@ export interface UserMeal {
   timeLogged: string;
   notified: boolean;
 }
+
+export interface CreateMealDto {
+  userId: string;
+  name: string;
+  description: string;
+  photoUrl: string;
+}
