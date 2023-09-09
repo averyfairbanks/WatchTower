@@ -14,7 +14,7 @@ export const Paginator: React.FC<PaginatorProps> = ({
 }) => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const { hasBackward, hasForward, total } = pageDetails;
+  const { hasBackward, hasForward } = pageDetails;
 
   return (
     <>

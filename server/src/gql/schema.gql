@@ -9,6 +9,11 @@ input CreateMealInput {
   userId: String!
 }
 
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type Mutation {
   logMeal(input: CreateMealInput!): UserMeal!
 }
@@ -30,6 +35,10 @@ type Query {
   user(id: String!): User!
 }
 
+type Subscription {
+  mealLogged: UserMeal!
+}
+
 """Represents an app user"""
 type User {
   email: String!
@@ -45,6 +54,6 @@ type UserMeal {
   name: String!
   notified: Boolean!
   photoUrl: String!
-  timeLogged: String!
+  timeLogged: DateTime!
   userId: Float!
 }

@@ -1,8 +1,9 @@
 import { useQuery } from '@apollo/client';
 import { useState } from 'react';
+import { MEAL_LOGGED_SUBSCRIPTION } from './gql/MealLoggedSub';
 import { useSearchbarContext } from '../common/AppBar/hook';
 import { Loading } from '../common/Loading/Loading';
-import { NoResults } from '../common/NoResultsPage.tsx/NoResults';
+import { NoResults } from '../common/NoResults.tsx/NoResults';
 import { Paginator } from '../common/Pagination/Paginator';
 import { useSnackBar } from '../common/SnackBar/hook';
 import { SnackType } from '../common/SnackBar/types';
@@ -17,9 +18,18 @@ export const Meals: React.FC = () => {
 
   const [req, setReq] = useState({ page: 1, pageLimit: 10, searchTerm });
 
-  const { data, loading, error } = useQuery(GET_ALL_MEALS_QUERY, {
+  const query = useQuery(GET_ALL_MEALS_QUERY, {
     variables: { userId, ...req },
-    fetchPolicy: 'cache-and-network',
+  });
+
+  const { data, loading, error } = query;
+
+  query.subscribeToMore({
+    document: MEAL_LOGGED_SUBSCRIPTION,
+    variables: { userId, ...req },
+    updateQuery: (prev, { subscriptionData }) => {
+      return [...prev, subscriptionData.data];
+    },
   });
 
   if (loading) {

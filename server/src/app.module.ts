@@ -32,6 +32,10 @@ import { UserModule } from './modules/user/user.module';
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/gql/schema.gql'),
       sortSchema: true,
+      subscriptions: {
+        'graphql-ws': true,
+        'subscriptions-transport-ws': true,
+      },
     }),
     MealsModule,
     PaginationModule,

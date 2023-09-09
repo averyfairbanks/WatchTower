@@ -1,9 +1,11 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { decode } from 'src/common/utils';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { PubSub } from 'graphql-subscriptions';
 import { CreateMealInput } from './dto/create-meal.args';
 import { UserMealArgs } from './dto/user-meals.args';
 import { MealsService } from './meals.service';
 import { PaginatedUserMeals, UserMeal } from './model/user-meal.model';
+
+const pubSub = new PubSub();
 
 @Resolver()
 export class MealResolver {
@@ -21,6 +23,13 @@ export class MealResolver {
 
   @Mutation(() => UserMeal)
   async logMeal(@Args('input') args: CreateMealInput): Promise<UserMeal> {
-    return this.mealsService.createNewMeal(args);
+    const newMeal = await this.mealsService.createNewMeal(args);
+    pubSub.publish('mealLogged', { mealLogged: newMeal });
+    return newMeal;
+  }
+
+  @Subscription(() => UserMeal)
+  mealLogged() {
+    return pubSub.asyncIterator('mealLogged');
   }
 }

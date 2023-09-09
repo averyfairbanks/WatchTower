@@ -27,7 +27,7 @@ export class UserMeal {
 
   @Field()
   @Column({ name: 'time_logged' })
-  timeLogged: string;
+  timeLogged: Date;
 
   @Field({ defaultValue: false })
   @Column({ default: false })

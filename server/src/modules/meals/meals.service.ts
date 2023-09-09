@@ -28,7 +28,10 @@ export class MealsService {
    * @param mealId
    * @returns
    */
-  async findOneWithIds(encodedUserId: string, mealId: number): Promise<UserMeal> {
+  async findOneWithIds(
+    encodedUserId: string,
+    mealId: number,
+  ): Promise<UserMeal> {
     const userId = decode(encodedUserId);
     return this.userMealRepo.findOneBy({ userId, id: mealId }).then((meal) => {
       if (!meal) {
@@ -86,7 +89,9 @@ export class MealsService {
       photoUrl: `${process.env.REACT_APP_PHOTO_HOST}/${photoUrl}`,
     };
 
-    return this.userMealRepo.save(userMeal);
+    return await this.userMealRepo
+      .save(userMeal)
+      .then((meal) => this.userMealRepo.findOneBy({ id: meal.id }));
   }
 
   /**
