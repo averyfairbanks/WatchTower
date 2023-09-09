@@ -16,8 +16,7 @@ export class MealResolver {
 
   @Query(() => UserMeal)
   async meal(@Args('userId') userId: string, @Args('mealId') mealId: number) {
-    const _userId = decode(userId);
-    return this.mealsService.findOneWithIds(_userId, mealId);
+    return this.mealsService.findOneWithIds(userId, mealId);
   }
 
   @Mutation(() => UserMeal)

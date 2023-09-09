@@ -28,31 +28,38 @@ export class MealsService {
    * @param mealId
    * @returns
    */
-  findOneWithIds(userId: number, mealId: number): Promise<UserMeal> {
-    return this.userMealRepo.findOneBy({ userId, id: mealId });
+  async findOneWithIds(encodedUserId: string, mealId: number): Promise<UserMeal> {
+    const userId = decode(encodedUserId);
+    return this.userMealRepo.findOneBy({ userId, id: mealId }).then((meal) => {
+      if (!meal) {
+        throw new Error(
+          `Couldn't find meal with id ${mealId} for user with id ${userId}`,
+        );
+      }
+      return meal;
+    });
   }
 
   /**
    * Find all UserMeals by user.id
-   * @param userId - user_meal.id
-   * @param paginate - details for paginating the response
+   * @param args -- represents all arguments passed through graph
    * @returns - Promise of Paginated<UserMeals>
    */
   async findAllByUserId(args: UserMealArgs): Promise<PaginatedUserMeals> {
     const userId = decode(args.userId);
     // will throw exception if no user is found
-    this.userService.findUserById(userId);
+    const user = await this.userService.findUserById(userId);
 
     // paging detals request
     const getPagingDetailsDto: GetPagingDetailsDto =
-      this.buildGetPagingDetailsDto(userId, args);
+      this.buildGetPagingDetailsDto(user.id, args);
 
     // find paging details (min, max, total) of user meals
     const pageDetails =
       await this.paginationService.getPagingDetails(getPagingDetailsDto);
 
     // build paginated options for find() then await
-    const options = this.buildFindOptions(userId, args);
+    const options = this.buildFindOptions(user.id, args);
     const meals = await this.userMealRepo.find(options);
 
     // add meals to paginated object
@@ -63,7 +70,7 @@ export class MealsService {
 
   /**
    * Create new user_meal table row
-   * @param createMealDto
+   * @param args - params for new UserMeal creation
    * @returns
    */
   async createNewMeal(args: CreateMealInput): Promise<UserMeal> {

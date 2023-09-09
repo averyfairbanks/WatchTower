@@ -1,6 +1,5 @@
 import { Type } from '@nestjs/common';
 import { Field, ObjectType } from '@nestjs/graphql';
-import { PageableType } from 'src/modules/pagination/types';
 
 @ObjectType()
 export class PageDetails {
