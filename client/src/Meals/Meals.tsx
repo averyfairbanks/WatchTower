@@ -1,17 +1,18 @@
 import { useQuery } from '@apollo/client';
-import { useState } from 'react';
-import { MEAL_LOGGED_SUBSCRIPTION } from './gql/MealLoggedSub';
+import { useRef, useState } from 'react';
+import { ScrollView } from 'react-native';
 import { useSearchbarContext } from '../common/AppBar/hook';
 import { Loading } from '../common/Loading/Loading';
 import { NoResults } from '../common/NoResults.tsx/NoResults';
 import { Paginator } from '../common/Pagination/Paginator';
 import { useSnackBar } from '../common/SnackBar/hook';
-import { SnackType } from '../common/SnackBar/types';
 import { _getUserDetails } from '../utils/storeMethods';
 import { MealCards } from './MealCards';
 import { GET_ALL_MEALS_QUERY } from './gql/GetMealsQuery';
+import { MEAL_LOGGED_SUBSCRIPTION } from './gql/MealLoggedSub';
 
 export const Meals: React.FC = () => {
+  const ref = useRef<ScrollView>(null);
   const { addSnack } = useSnackBar();
   const { id: userId } = _getUserDetails();
   const searchTerm = useSearchbarContext();
@@ -28,7 +29,9 @@ export const Meals: React.FC = () => {
     document: MEAL_LOGGED_SUBSCRIPTION,
     variables: { userId, ...req },
     updateQuery: (prev, { subscriptionData }) => {
-      return [...prev, subscriptionData.data];
+      return {
+        entities: [...prev.meals.entities, subscriptionData.data.mealLogged],
+      };
     },
   });
 
@@ -37,7 +40,7 @@ export const Meals: React.FC = () => {
   }
 
   if (error) {
-    addSnack('Error retrieving meals', SnackType.FAILURE);
+    // addSnack('Error retrieving meals', SnackType.FAILURE);
     return <NoResults noMeals={true} />;
   }
 
@@ -53,12 +56,17 @@ export const Meals: React.FC = () => {
     } else if (!forward && hasBackward) {
       setReq({ ...req, page: req.page - 1 });
     }
+
+    ref.current?.scrollTo({
+      y: 0,
+      animated: true,
+    });
   };
 
   if (meals && meals.length > 0) {
     return (
       <>
-        <MealCards meals={meals} page={req.page} />
+        <MealCards ref={ref} meals={meals} page={req.page} />
         <Paginator
           handlePageChange={handlePageChange}
           pageDetails={pageDetails}
