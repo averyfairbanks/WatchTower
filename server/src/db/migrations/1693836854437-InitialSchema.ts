@@ -4,7 +4,7 @@ export class InitialSchema1693836854437 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
       `
-            CREATE TABLE IF NOT EXISTS users (
+            CREATE TABLE IF NOT EXISTS user (
                 id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                 first_name VARCHAR(50) NOT NULL,
                 last_name VARCHAR(50) NOT NULL,
@@ -16,7 +16,7 @@ export class InitialSchema1693836854437 implements MigrationInterface {
                 user_id BIGINT NOT NULL,
                 name VARCHAR(64) NOT NULL,
                 description VARCHAR(512),
-                photo_url VARCHAR(512),
+                photo_url VARCHAR(128),
                 time_logged TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
                 notified BOOLEAN DEFAULT false
             );

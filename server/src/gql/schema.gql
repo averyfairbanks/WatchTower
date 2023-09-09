@@ -2,7 +2,31 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input CreateMealInput {
+  description: String!
+  name: String!
+  photoUrl: String!
+  userId: String!
+}
+
+type Mutation {
+  logMeal(input: CreateMealInput!): UserMeal!
+}
+
+type PageDetails {
+  hasBackward: Boolean!
+  hasForward: Boolean!
+  total: Float!
+}
+
+type PaginatedUserMeals {
+  entities: [UserMeal!]!
+  pageDetails: PageDetails!
+}
+
 type Query {
+  meal(mealId: Float!, userId: String!): UserMeal!
+  meals(page: Int! = 1, pageLimit: Int! = 10, searchTerm: String! = "", userId: String!): PaginatedUserMeals!
   user(id: String!): User!
 }
 
@@ -12,4 +36,15 @@ type User {
   firstName: String!
   id: Float!
   lastName: String!
+}
+
+"""Represents meal details logged by users"""
+type UserMeal {
+  description: String!
+  id: Float!
+  name: String!
+  notified: Boolean!
+  photoUrl: String!
+  timeLogged: String!
+  userId: Float!
 }

@@ -10,19 +10,7 @@ export class UserResolver {
   @Query(() => User)
   async user(@Args('id') id: string): Promise<User> {
     const userId = decode(id);
-    const user = this.userService
-      .findUserById(userId)
-      .then((user) => {
-        if (!user) {
-          throw new Error(`Couldn't find user with id: ${userId}.`);
-        }
-        return user;
-      })
-      .catch((err) => {
-        console.error(err)
-        throw new Error("Error retrieving User!");
-      });
-
-    return user;
+    
+    return this.userService.findUserById(userId)
   }
 }

@@ -5,10 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { InitialSchema1693836854437 as InitialSchema } from './db/migrations/1693836854437-InitialSchema';
 import { MealsModule } from './modules/meals/meals.modules';
-import { UserMeal } from './modules/meals/user-meal.entity';
+import { UserMeal } from './modules/meals/model/user-meal.model';
 import { PaginationModule } from './modules/pagination/pagination.module';
 import { S3Module } from './modules/s3/s3.module';
-import { User } from './modules/user/user.entity';
+import { User } from './modules/user/model/user.model';
 import { UserModule } from './modules/user/user.module';
 
 @Module({

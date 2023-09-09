@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserMeal } from '../meals/user-meal.entity';
+import { UserMeal } from '../meals/model/user-meal.model';
 import { PaginationService } from './pagination.service';
 
 @Module({
