@@ -1,35 +1,61 @@
+import { useQuery } from '@apollo/client';
 import { useState } from 'react';
+import { useSearchbarContext } from '../common/AppBar/hook';
 import { Loading } from '../common/Loading/Loading';
 import { NoResults } from '../common/NoResultsPage.tsx/NoResults';
+import { Paginator } from '../common/Pagination/Paginator';
+import { useSnackBar } from '../common/SnackBar/hook';
+import { SnackType } from '../common/SnackBar/types';
+import { _getUserDetails } from '../utils/storeMethods';
 import { MealCards } from './MealCards';
-import { MealsProvider } from './MealsProvider';
-import { useMeals } from './hooks';
+import { GET_ALL_MEALS_QUERY } from './gql/GetMealsQuery';
 
-const Meals: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
-  const pagedMeals = useMeals();
+export const Meals: React.FC = () => {
+  const { addSnack } = useSnackBar();
+  const { id: userId } = _getUserDetails();
+  const searchTerm = useSearchbarContext();
 
-  const meals = pagedMeals?.entities ? pagedMeals.entities : [];
-  const total = pagedMeals?.pageDetails?.total ?? 0;
+  const [req, setReq] = useState({ page: 1, pageLimit: 10, searchTerm });
 
-  switch (isLoading) {
-    case true:
-      return <Loading />;
-    case false:
-      switch (meals && meals.length > 0) {
-        case true:
-          return <MealCards meals={meals} />;
-        case false:
-          return <NoResults noMeals={!!total || total === 0} />;
-      }
+  const { data, loading, error } = useQuery(GET_ALL_MEALS_QUERY, {
+    variables: { userId, ...req },
+    fetchPolicy: 'cache-and-network',
+  });
+
+  if (loading) {
+    return <Loading />;
   }
-};
 
-export const MealsWrapper: React.FC = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  if (error) {
+    addSnack('Error retrieving meals', SnackType.FAILURE);
+    return <NoResults noMeals={true} />;
+  }
 
-  return (
-    <MealsProvider setIsLoading={setIsLoading}>
-      <Meals isLoading={isLoading} />
-    </MealsProvider>
-  );
+  const { entities, pageDetails } = data?.meals;
+
+  const meals = entities ? entities : [];
+  const total = pageDetails?.total ?? 0;
+  const { hasBackward, hasForward } = pageDetails;
+
+  const handlePageChange = (forward: boolean) => {
+    if (forward && hasForward) {
+      setReq({ ...req, page: req.page + 1 });
+    } else if (!forward && hasBackward) {
+      setReq({ ...req, page: req.page - 1 });
+    }
+  };
+
+  if (meals && meals.length > 0) {
+    return (
+      <>
+        <MealCards meals={meals} page={req.page} />
+        <Paginator
+          handlePageChange={handlePageChange}
+          pageDetails={pageDetails}
+        />
+      </>
+    );
+  }
+
+  return <NoResults noMeals={total === 0} />;
 };

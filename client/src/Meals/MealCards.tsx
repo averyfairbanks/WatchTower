@@ -5,15 +5,14 @@ import { Avatar, Badge, Card, Text } from 'react-native-paper';
 import { useNavigate } from 'react-router-native';
 import { UserMeal } from '../Meal/types';
 import { encode } from '../utils/encoding';
-import { useOffset } from './hooks';
 
 interface MealCardsProps {
   meals: UserMeal[] | null;
+  page: number;
 }
 
-export const MealCards: React.FC<MealCardsProps> = ({ meals }) => {
+export const MealCards: React.FC<MealCardsProps> = ({ meals, page }) => {
   const navigate = useNavigate();
-  const offset = useOffset();
 
   // TODO: clean this mess up
   return (
@@ -32,7 +31,7 @@ export const MealCards: React.FC<MealCardsProps> = ({ meals }) => {
                   onPress={() => navigate(`/meal/${encode(String(meal.id))}`)}>
                   <Card.Title
                     title={
-                      idx === 0 && offset === 1 ? (
+                      idx === 0 && page === 1 ? (
                         <Text
                           style={{
                             fontSize: 30,
@@ -45,7 +44,7 @@ export const MealCards: React.FC<MealCardsProps> = ({ meals }) => {
                       )
                     }
                     subtitle={
-                      idx === 0 && offset === 1 ? undefined : (
+                      idx === 0 && page === 1 ? undefined : (
                         <Text>{convDateTime}</Text>
                       )
                     }
@@ -53,7 +52,7 @@ export const MealCards: React.FC<MealCardsProps> = ({ meals }) => {
                     right={meal.notified ? undefined : () => <Badge />}
                     rightStyle={{ margin: 10 }}
                   />
-                  {idx === 0 && offset === 1 && (
+                  {idx === 0 && page === 1 && (
                     <Card.Cover
                       source={{
                         uri: meal.photoUrl.toString(),
@@ -61,7 +60,7 @@ export const MealCards: React.FC<MealCardsProps> = ({ meals }) => {
                       style={{ margin: 5 }}
                     />
                   )}
-                  {idx === 0 && offset === 1 && (
+                  {idx === 0 && page === 1 && (
                     <Card.Content>
                       <Text variant="titleLarge">{meal.name}</Text>
                       <Text variant="bodyMedium">{convDateTime}</Text>

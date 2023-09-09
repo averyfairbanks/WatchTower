@@ -8,6 +8,7 @@ export interface Paginated<T> {
 }
 
 export interface PaginatedMealsRequest {
+  userId: string;
   searchTerm: string;
   pageLimit: number;
   page: number;
