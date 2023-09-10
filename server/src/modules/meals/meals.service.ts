@@ -1,18 +1,17 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { decode } from 'src/common/utils';
-import { Paginated } from 'src/models/paginated-results.model';
+import { PagingDetails } from 'src/models/paging-details.model';
 import { FindManyOptions, ILike, Repository } from 'typeorm';
-import { PaginateSearch } from '../../models/paginated-search.dto';
 import {
   GetPagingDetailsDto,
   Where,
 } from '../pagination/dto/get-paging-details.dto';
 import { PaginationService } from '../pagination/pagination.service';
 import { UserService } from '../user/user.service';
-import { CreateMealDto } from './dto/create-meal.dto';
-import { UserMeal } from './user-meal.entity';
-import { IsNumber } from 'class-validator';
+import { CreateMealInput } from './dto/create-meal.args';
+import { UserMealArgs } from './dto/user-meals.args';
+import { PaginatedUserMeals, UserMeal } from './model/user-meal.model';
 
 @Injectable()
 export class MealsService {
@@ -25,64 +24,64 @@ export class MealsService {
 
   /**
    * Find a single UserMeal by user.id and user_meal.id
-   * @param userId 
-   * @param mealId 
-   * @returns 
+   * @param userId
+   * @param mealId
+   * @returns
    */
-  findOneById(userId: number, mealId: number): Promise<UserMeal> {
-    return this.userMealRepo.findOneBy({ userId, id: mealId });
+  async findOneWithIds(
+    encodedUserId: string,
+    encodedMealId: string,
+  ): Promise<UserMeal> {
+    const userId = decode(encodedUserId);
+    const mealId = decode(encodedMealId);
+    return this.userMealRepo.findOneBy({ userId, id: mealId }).then((meal) => {
+      if (!meal) {
+        throw new Error(
+          `Couldn't find meal with id ${mealId} for user with id ${userId}`,
+        );
+      }
+      return meal;
+    });
   }
 
   /**
    * Find all UserMeals by user.id
-   * @param userId - user_meal.id
-   * @param paginate - details for paginating the response
+   * @param args -- represents all arguments passed through graph
    * @returns - Promise of Paginated<UserMeals>
    */
-  async findAllByUserId(
-    userId: number,
-    paginate: PaginateSearch,
-  ): Promise<Paginated<UserMeal>> {
-    const { searchTerm } = paginate;
+  async findAllByUserId(args: UserMealArgs): Promise<PaginatedUserMeals> {
+    const userId = decode(args.userId);
+    // will throw exception if no user is found
+    const user = await this.userService.findUserById(userId);
 
+    // paging detals request
     const getPagingDetailsDto: GetPagingDetailsDto =
-      this.buildGetPagingDetailsDto(userId, searchTerm);
+      this.buildGetPagingDetailsDto(user.id, args);
 
-    const { min, max, total } =
+    // find paging details (min, max, total) of user meals
+    const pageDetails =
       await this.paginationService.getPagingDetails(getPagingDetailsDto);
 
-    const options = this.buildFindOptions(userId, paginate);
+    // build paginated options for find() then await
+    const options = this.buildFindOptions(user.id, args);
     const meals = await this.userMealRepo.find(options);
 
-    const paginatedMeals: Paginated<UserMeal> = {
-      entities: meals,
-      pageDetails: {
-        hasForward: meals[meals.length - 1]?.id > min,
-        hasBackward: meals[0]?.id < max,
-        total,
-      },
-    };
+    // add meals to paginated object
+    const paginatedMeals = this.buildPaginatedResults(meals, pageDetails);
 
     return paginatedMeals;
   }
 
   /**
    * Create new user_meal table row
-   * @param createMealDto 
-   * @returns 
+   * @param args - params for new UserMeal creation
+   * @returns
    */
-  async createNewMeal(createMealDto: CreateMealDto): Promise<UserMeal> {
-    const userId = decode(createMealDto.userId);
-    const user = await this.userService.findUserById(userId).then((user) => {
-      if (user === null) {
-        const errMsg = `User with id ${userId} was not found`;
-        throw new HttpException(errMsg, HttpStatus.NOT_FOUND);
-      }
+  async createNewMeal(args: CreateMealInput): Promise<UserMeal> {
+    const userId = decode(args.userId);
+    const user = await this.userService.findUserById(userId);
 
-      return user;
-    });
-
-    const { name, description, photoUrl } = createMealDto;
+    const { name, description, photoUrl } = args;
 
     const userMeal: Partial<UserMeal> = {
       userId: user.id,
@@ -91,14 +90,19 @@ export class MealsService {
       photoUrl: `${process.env.REACT_APP_PHOTO_HOST}/${photoUrl}`,
     };
 
-    return this.userMealRepo.save(userMeal);
+    return await this.userMealRepo
+      .save(userMeal)
+      .then((meal) => this.userMealRepo.findOneBy({ id: meal.id }));
   }
 
+  /**
+   * HELPERS
+   */
   private buildGetPagingDetailsDto(
     userId: number,
-    searchTerm: string,
+    args: UserMealArgs,
   ): GetPagingDetailsDto {
-    const wheres = this.buildWheres(userId, searchTerm);
+    const wheres = this.buildWheres(userId, args);
 
     return {
       type: UserMeal,
@@ -107,8 +111,9 @@ export class MealsService {
     };
   }
 
-  private buildWheres(userId: number, searchTerm: string): Where[] {
-    // build pagination request starting with where statements
+  private buildWheres(userId: number, args: UserMealArgs): Where[] {
+    const { searchTerm } = args;
+
     const wheres: Where[] = [
       { whereStatement: 'user_meal.user_id = :userId', argument: { userId } },
     ];
@@ -125,10 +130,10 @@ export class MealsService {
 
   private buildFindOptions(
     userId: number,
-    paginate: PaginateSearch,
+    args: UserMealArgs,
   ): FindManyOptions<UserMeal> {
-    const { searchTerm, page: offset, pageLimit } = paginate;
-    const pageOffset = (offset - 1) * pageLimit;
+    const { searchTerm, page, pageLimit } = args;
+    const pageOffset = (page - 1) * pageLimit;
 
     return {
       where: {
@@ -140,6 +145,21 @@ export class MealsService {
       },
       take: pageLimit ? pageLimit : undefined,
       skip: pageOffset ? pageOffset : undefined,
+    };
+  }
+
+  private buildPaginatedResults(
+    meals: UserMeal[],
+    pageDetails: PagingDetails,
+  ): PaginatedUserMeals {
+    const { min, max, total } = pageDetails;
+    return {
+      entities: meals,
+      pageDetails: {
+        hasForward: meals[meals.length - 1]?.id > min,
+        hasBackward: meals[0]?.id < max,
+        total,
+      },
     };
   }
 }

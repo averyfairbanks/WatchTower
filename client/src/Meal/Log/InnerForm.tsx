@@ -1,18 +1,23 @@
+import { useMutation } from '@apollo/client';
 import { VStack } from '@react-native-material/core';
 import { useFormikContext } from 'formik';
 import { useCallback, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Button, Text, TextInput } from 'react-native-paper';
 import { useNavigate } from 'react-router-native';
+import { ErrorPage } from '../../common/Error/Error';
+import { Loading } from '../../common/Loading/Loading';
 import { useSnackBar } from '../../common/SnackBar/hook';
+import { LOG_MEAL_MUTATION } from './gql/LogNewMealMutation';
 import { StyledSubmit, StyledText, StyledTextInput } from './styled';
-import { LogMealFormValues } from './types';
+import { CreateMealDto, LogMealFormValues } from './types';
 import { _pickImage, handleLogMeal } from './utils';
 
 interface InnerFormProps {}
 
 export const InnerForm: React.FC<InnerFormProps> = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [logMeal, { loading, error }] = useMutation(LOG_MEAL_MUTATION);
 
   // context values/actions
   const navigate = useNavigate();
@@ -25,6 +30,14 @@ export const InnerForm: React.FC<InnerFormProps> = () => {
   const pickImage = useCallback(async () => {
     _pickImage(setIsLoading, setFieldValue, addSnack);
   }, []);
+
+  if (isLoading || loading) {
+    return <Loading />;
+  }
+
+  if (error) {
+    return <ErrorPage />;
+  }
 
   return (
     <ScrollView contentContainerStyle={{ flex: 1 }}>
@@ -56,6 +69,7 @@ export const InnerForm: React.FC<InnerFormProps> = () => {
         <StyledSubmit
           onPress={() =>
             handleLogMeal(
+              logMeal,
               setIsLoading,
               values as LogMealFormValues,
               navigate,

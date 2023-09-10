@@ -18,7 +18,7 @@ export const LogMealButton = styled(FAB).attrs({
   bottom: 10px;
 `;
 
-export const Paginator = styled(FAB).attrs({ variant: 'surface' })`
+export const PaginatorArrow = styled(FAB).attrs({ variant: 'surface' })`
   position: absolute;
   bottom: 10px;
   border-radius: 30px;

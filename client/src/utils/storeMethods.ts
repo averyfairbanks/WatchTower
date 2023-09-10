@@ -1,10 +1,6 @@
 import { store } from '../../store';
 import { encode } from './encoding';
 
-export const _isDarkMode = (): boolean => {
-  return store.getRawState().preferences.isDarkMode;
-};
-
 export const _isLoggedIn = (): boolean => {
   return store.getRawState().loggedIn;
 };

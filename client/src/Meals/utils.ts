@@ -1,60 +1,48 @@
 import { UserMeal } from '../Meal/types';
-import {
-  Paginated,
-  PaginatedMealsRequest,
-} from '../common/Pagination/Paginated';
-import { SnackType } from '../common/SnackBar/types';
+import { Paginated } from '../common/Pagination/Paginated';
 
-export const handlePageChange = (
-  forward: boolean,
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  setPagedMealsReq: React.Dispatch<React.SetStateAction<PaginatedMealsRequest>>,
+export const handleSubscribe = (
+  prev: { meals: Paginated<UserMeal> },
+  options: {
+    subscriptionData: {
+      data: { mealLogged: UserMeal };
+    };
+    variables?: {
+      userId: string;
+      page: number;
+      pageLimit: number;
+      searchTerm: string;
+    };
+  },
 ) => {
-  setIsLoading(true);
-  setPagedMealsReq(s => {
-    if (forward) {
-      return { ...s, page: s.page + 1 };
-    } else {
-      if (s.page > 1) {
-        return { ...s, page: s.page - 1 };
-      }
-      return s;
-    }
+  const { subscriptionData, variables } = options;
+  if (!subscriptionData) return prev;
+
+  const loggedMeal = subscriptionData.data.mealLogged;
+
+  const existingMeals = prev.meals.entities.filter(
+    (meal: UserMeal) => meal.id !== loggedMeal.id,
+  );
+  const existingPageDetails = prev.meals.pageDetails;
+
+  return Object.assign({}, prev, {
+    meals: Object.assign({}, prev.meals, {
+      entities: [loggedMeal, ...existingMeals].splice(
+        0,
+        variables?.pageLimit ?? 10,
+      ),
+      pageDetails: Object.assign({}, existingPageDetails, {
+        total: existingPageDetails.total + 1,
+      }),
+    }),
   });
 };
 
-export const fetchMeals = (
-  userId: string,
-  pagedMealsReq: PaginatedMealsRequest,
-  setPagedMeals: (
-    value: React.SetStateAction<Paginated<UserMeal> | null>,
-  ) => void,
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  addSnack: (message: string, type: SnackType) => null,
-) => {
-  fetch(`http://localhost:3000/meals/${userId}`, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json; charset=utf-8',
-    },
-    body: JSON.stringify(pagedMealsReq),
-  })
-    .then(async res => {
-      if (res.ok) {
-        return res.json();
-      }
-
-      const body = await res.json();
-      throw new Error(`${body.statusCode}, ${body.statusText}`);
-    })
-    .then(val => {
-      setPagedMeals(val);
-      setIsLoading(false);
-    })
-    .catch(err => {
-      console.log(err);
-      setIsLoading(false);
-      addSnack('Error retrieving meals', SnackType.FAILURE);
-    });
+export const safeDestructure = (data: any): Paginated<UserMeal> => {
+  const { entities, pageDetails } = data?.meals;
+  const { total, hasBackward, hasForward } = pageDetails;
+  return {
+    entities: entities ? entities : [],
+    pageDetails: { hasBackward, hasForward, total: total ?? 0 },
+  };
 };

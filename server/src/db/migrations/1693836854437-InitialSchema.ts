@@ -10,13 +10,16 @@ export class InitialSchema1693836854437 implements MigrationInterface {
                 last_name VARCHAR(50) NOT NULL,
                 email VARCHAR(128) NOT NULL
             );
+
+            INSERT INTO users (first_name, last_name, email) 
+            VALUES ('Alex', 'E', 'email@email.net');
                 
             CREATE TABLE IF NOT EXISTS user_meal (
                 id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                 user_id BIGINT NOT NULL,
                 name VARCHAR(64) NOT NULL,
                 description VARCHAR(512),
-                photo_url VARCHAR(512),
+                photo_url VARCHAR(128),
                 time_logged TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
                 notified BOOLEAN DEFAULT false
             );

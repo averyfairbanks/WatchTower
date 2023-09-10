@@ -1,11 +1,11 @@
-import { Module } from "@nestjs/common";
-import { UserMeal } from "../meals/user-meal.entity";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { PaginationService } from "./pagination.service";
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserMeal } from '../meals/model/user-meal.model';
+import { PaginationService } from './pagination.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserMeal])],
   providers: [PaginationService],
   exports: [PaginationService],
 })
-export class UserModule {}
+export class PaginationModule {}

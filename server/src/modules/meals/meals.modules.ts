@@ -1,15 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserMeal } from './user-meal.entity';
-import { User } from 'src/modules/user/user.entity';
-import { MealsController } from './meals.controller';
-import { MealsService } from './meals.service';
-import { UserService } from '../user/user.service';
+import { User } from 'src/modules/user/model/user.model';
 import { PaginationService } from '../pagination/pagination.service';
+import { UserService } from '../user/user.service';
+import { MealsService } from './meals.service';
+import { UserMeal } from './model/user-meal.model';
+import { MealResolver } from './meals.resolver';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, UserMeal])],
-  controllers: [MealsController],
-  providers: [MealsService, UserService, PaginationService],
+  providers: [MealResolver, MealsService, UserService, PaginationService],
 })
 export class MealsModule {}

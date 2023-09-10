@@ -1,0 +1,59 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input CreateMealInput {
+  description: String!
+  name: String!
+  photoUrl: String!
+  userId: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Mutation {
+  logMeal(input: CreateMealInput!): UserMeal!
+}
+
+type PageDetails {
+  hasBackward: Boolean!
+  hasForward: Boolean!
+  total: Float!
+}
+
+type PaginatedUserMeals {
+  entities: [UserMeal!]!
+  pageDetails: PageDetails!
+}
+
+type Query {
+  meal(mealId: String!, userId: String!): UserMeal!
+  meals(page: Int! = 1, pageLimit: Int! = 10, searchTerm: String! = "", userId: String!): PaginatedUserMeals!
+  user(id: String!): User!
+}
+
+type Subscription {
+  mealLogged: UserMeal!
+}
+
+"""Represents an app user"""
+type User {
+  email: String!
+  firstName: String!
+  id: Float!
+  lastName: String!
+}
+
+"""Represents meal details logged by users"""
+type UserMeal {
+  description: String!
+  id: Float!
+  name: String!
+  notified: Boolean!
+  photoUrl: String!
+  timeLogged: DateTime!
+  userId: Float!
+}

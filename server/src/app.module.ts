@@ -1,10 +1,15 @@
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
+import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserMeal } from './modules/meals/user-meal.entity';
+import { join } from 'path';
 import { InitialSchema1693836854437 as InitialSchema } from './db/migrations/1693836854437-InitialSchema';
 import { MealsModule } from './modules/meals/meals.modules';
-import { User } from './modules/user/user.entity';
+import { UserMeal } from './modules/meals/model/user-meal.model';
+import { PaginationModule } from './modules/pagination/pagination.module';
 import { S3Module } from './modules/s3/s3.module';
+import { User } from './modules/user/model/user.model';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -23,7 +28,18 @@ import { S3Module } from './modules/s3/s3.module';
       logging: 'all',
       synchronize: false,
     }),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: join(process.cwd(), 'src/gql/schema.gql'),
+      sortSchema: true,
+      subscriptions: {
+        'graphql-ws': true,
+        'subscriptions-transport-ws': true,
+      },
+    }),
     MealsModule,
+    PaginationModule,
+    UserModule,
     S3Module,
   ],
 })
