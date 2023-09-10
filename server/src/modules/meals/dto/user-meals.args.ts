@@ -7,13 +7,13 @@ export class UserMealArgs {
   userId: string;
 
   @Field(() => String)
-  searchTerm = '';
+  searchTerm: string = '';
 
-  @Field((type) => Int)
+  @Field(() => Int)
   @Min(1)
   @Max(20)
   pageLimit = 10;
 
-  @Field((type) => Int)
+  @Field(() => Int)
   page = 1;
 }

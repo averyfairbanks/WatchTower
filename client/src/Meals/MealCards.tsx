@@ -1,7 +1,7 @@
 import { VStack } from '@react-native-material/core';
 import { LegacyRef } from 'react';
 import { ScrollView } from 'react-native';
-import { Avatar, Badge, Card, Text } from 'react-native-paper';
+import { Avatar, Badge, Card, Text, useTheme } from 'react-native-paper';
 import { useNavigate } from 'react-router-native';
 import { UserMeal } from '../Meal/MealPage/types';
 import { encode } from '../utils/encoding';
@@ -17,13 +17,17 @@ export const MealCards: React.FC<MealCardsProps> = ({
   meals,
   page,
 }) => {
+  const theme = useTheme();
   const navigate = useNavigate();
 
   // TODO: clean this mess up
   return (
     <ScrollView
       ref={scrollRef as LegacyRef<ScrollView>}
-      contentContainerStyle={{ padding: 5 }}
+      contentContainerStyle={{
+        padding: 5,
+        backgroundColor: theme.colors.backdrop,
+      }}
       alwaysBounceVertical={true}>
       <VStack fill spacing={8} mb={85}>
         {meals &&

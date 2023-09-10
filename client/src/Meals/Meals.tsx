@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView } from 'react-native';
 import { useSearchbarContext } from '../common/AppBar/hook';
 import { ErrorPage } from '../common/Error/Error';
@@ -19,13 +19,22 @@ export const Meals: React.FC = () => {
   // search variables
   const { id: userId } = _getUserDetails();
   const searchTerm = useSearchbarContext();
-  const [req, setReq] = useState({ page: 1, pageLimit: 10, searchTerm });
+  const [req, setReq] = useState({
+    userId,
+    page: 1,
+    pageLimit: 10,
+    searchTerm,
+  });
+
+  useEffect(() => {
+    setReq({ ...req, searchTerm });
+  }, [searchTerm]);
 
   // query and utils
   const { data, loading, error, subscribeToMore } = useQuery(
     GET_ALL_MEALS_QUERY,
     {
-      variables: { userId, ...req },
+      variables: req,
     },
   );
 
@@ -40,7 +49,7 @@ export const Meals: React.FC = () => {
   // config for handling new mealLogged subscription
   subscribeToMore({
     document: MEAL_LOGGED_SUBSCRIPTION,
-    variables: { userId, ...req },
+    variables: req,
     updateQuery: handleSubscribe,
   });
 
