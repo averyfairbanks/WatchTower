@@ -2,6 +2,7 @@ import { useQuery } from '@apollo/client';
 import { useRef, useState } from 'react';
 import { ScrollView } from 'react-native';
 import { useSearchbarContext } from '../common/AppBar/hook';
+import { Error } from '../common/Error/Error';
 import { Loading } from '../common/Loading/Loading';
 import { NoResults } from '../common/NoResults.tsx/NoResults';
 import { Paginator } from '../common/Pagination/Paginator';
@@ -40,8 +41,8 @@ export const Meals: React.FC = () => {
   }
 
   if (error) {
-    // addSnack('Error retrieving meals', SnackType.FAILURE);
-    return <NoResults noMeals={true} />;
+    console.log(error)
+    return <Error />;
   }
 
   const { entities, pageDetails } = data?.meals;
