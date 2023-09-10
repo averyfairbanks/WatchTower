@@ -10,7 +10,6 @@ interface UIStore {
     email: string;
   };
   preferences: {
-    isDarkMode: boolean;
     allowNotifications: boolean;
   };
 }
@@ -24,7 +23,6 @@ const initialStore: UIStore = {
     email: '',
   },
   preferences: {
-    isDarkMode: useColorScheme() === 'dark',
     allowNotifications: false,
   },
 };

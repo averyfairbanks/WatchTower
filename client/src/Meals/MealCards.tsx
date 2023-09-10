@@ -3,7 +3,7 @@ import { LegacyRef } from 'react';
 import { ScrollView } from 'react-native';
 import { Avatar, Badge, Card, Text } from 'react-native-paper';
 import { useNavigate } from 'react-router-native';
-import { UserMeal } from '../Meal/types';
+import { UserMeal } from '../Meal/MealPage/types';
 import { encode } from '../utils/encoding';
 
 interface MealCardsProps {
@@ -12,7 +12,11 @@ interface MealCardsProps {
   page: number;
 }
 
-export const MealCards: React.FC<MealCardsProps> = ({ scrollRef, meals, page }) => {
+export const MealCards: React.FC<MealCardsProps> = ({
+  scrollRef,
+  meals,
+  page,
+}) => {
   const navigate = useNavigate();
 
   // TODO: clean this mess up
@@ -25,6 +29,7 @@ export const MealCards: React.FC<MealCardsProps> = ({ scrollRef, meals, page }) 
         {meals &&
           meals.map((meal, idx) => {
             const convDateTime = new Date(meal.timeLogged).toLocaleString();
+            const onFirstPage = idx === 0 && page === 1;
 
             return (
               <Card
@@ -32,7 +37,7 @@ export const MealCards: React.FC<MealCardsProps> = ({ scrollRef, meals, page }) 
                 onPress={() => navigate(`/meal/${encode(String(meal.id))}`)}>
                 <Card.Title
                   title={
-                    idx === 0 && page === 1 ? (
+                    onFirstPage ? (
                       <Text
                         style={{
                           fontSize: 30,
@@ -45,15 +50,13 @@ export const MealCards: React.FC<MealCardsProps> = ({ scrollRef, meals, page }) 
                     )
                   }
                   subtitle={
-                    idx === 0 && page === 1 ? undefined : (
-                      <Text>{convDateTime}</Text>
-                    )
+                    onFirstPage ? undefined : <Text>{convDateTime}</Text>
                   }
                   left={props => <Avatar.Icon {...props} icon="food" />}
                   right={meal.notified ? undefined : () => <Badge />}
                   rightStyle={{ margin: 10 }}
                 />
-                {idx === 0 && page === 1 && (
+                {onFirstPage && (
                   <Card.Cover
                     source={{
                       uri: meal.photoUrl.toString(),
@@ -61,7 +64,7 @@ export const MealCards: React.FC<MealCardsProps> = ({ scrollRef, meals, page }) 
                     style={{ margin: 5 }}
                   />
                 )}
-                {idx === 0 && page === 1 && (
+                {onFirstPage && (
                   <Card.Content>
                     <Text variant="titleLarge">{meal.name}</Text>
                     <Text variant="bodyMedium">{convDateTime}</Text>
