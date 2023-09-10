@@ -10,7 +10,7 @@ import { UserMeal } from './types';
 
 const TEMP: React.FC = () => {
   const theme = useTheme();
-  const { height, width } = Dimensions.get('screen');
+  const { width } = Dimensions.get('screen');
 
   return Object.entries(theme.colors).map(([key, val]) => (
     <View key={key.toString()}>

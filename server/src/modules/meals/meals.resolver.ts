@@ -6,6 +6,7 @@ import { MealsService } from './meals.service';
 import { PaginatedUserMeals, UserMeal } from './model/user-meal.model';
 
 const pubSub = new PubSub();
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 @Resolver()
 export class MealResolver {
@@ -24,7 +25,9 @@ export class MealResolver {
   @Mutation(() => UserMeal)
   async logMeal(@Args('input') args: CreateMealInput): Promise<UserMeal> {
     const newMeal = await this.mealsService.createNewMeal(args);
-    pubSub.publish('mealLogged', { mealLogged: newMeal });
+    wait(3000).then(() =>
+      pubSub.publish('mealLogged', { mealLogged: newMeal }),
+    );
     return newMeal;
   }
 

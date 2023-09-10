@@ -2,14 +2,14 @@ import { useQuery } from '@apollo/client';
 import { useRef, useState } from 'react';
 import { ScrollView } from 'react-native';
 import { useSearchbarContext } from '../common/AppBar/hook';
-import { Error } from '../common/Error/Error';
+import { ErrorPage } from '../common/Error/Error';
 import { Loading } from '../common/Loading/Loading';
 import { NoResults } from '../common/NoResults.tsx/NoResults';
 import { Paginator } from '../common/Pagination/Paginator';
 import { _getUserDetails } from '../utils/storeMethods';
 import { MealCards } from './MealCards';
 import { GET_ALL_MEALS_QUERY } from './gql/GetMealsQuery';
-import { MEAL_LOGGED_SUBSCRIPTION } from './gql/MealLoggedSub';
+import { MEAL_LOGGED_SUBSCRIPTION } from './gql/MealLoggedSubscription';
 import { handleSubscribe, safeDestructure } from './utils';
 
 export const Meals: React.FC = () => {
@@ -34,7 +34,7 @@ export const Meals: React.FC = () => {
   }
 
   if (error) {
-    return <Error />;
+    return <ErrorPage />;
   }
 
   // config for handling new mealLogged subscription
@@ -44,7 +44,7 @@ export const Meals: React.FC = () => {
     updateQuery: handleSubscribe,
   });
 
-  const { meals, pageDetails } = safeDestructure(data);
+  const { entities: meals, pageDetails } = safeDestructure(data);
   const { hasBackward, hasForward, total } = pageDetails;
 
   const handlePageChange = (forward: boolean) => {
@@ -52,7 +52,7 @@ export const Meals: React.FC = () => {
       y: 0,
       animated: true,
     });
-    
+
     if (forward && hasForward) {
       setReq({ ...req, page: req.page + 1 });
     } else if (!forward && hasBackward) {

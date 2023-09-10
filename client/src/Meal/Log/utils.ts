@@ -1,8 +1,16 @@
+import {
+  ApolloCache,
+  DefaultContext,
+  FetchResult,
+  MutationFunctionOptions,
+  OperationVariables,
+} from '@apollo/client';
 import { FormikErrors } from 'formik';
 import { Asset, launchImageLibrary } from 'react-native-image-picker';
 import { NavigateFunction } from 'react-router-native';
 import { mixed, object, string } from 'yup';
 import { SnackType } from '../../common/SnackBar/types';
+import { UserMeal } from '../types';
 import { CreateMealDto, LogMealFormValues } from './types';
 
 export const validationSchema = object().shape({
@@ -40,6 +48,14 @@ export const _pickImage = (
 
 // handler for submitting new photo/meal
 export const handleLogMeal = async (
+  logMeal: (
+    options?: MutationFunctionOptions<
+      any,
+      OperationVariables,
+      DefaultContext,
+      ApolloCache<any>
+    >,
+  ) => Promise<FetchResult<UserMeal>>,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
   formValues: LogMealFormValues,
   navigate: NavigateFunction,
@@ -88,7 +104,7 @@ export const handleLogMeal = async (
       });
 
       // if url generated successfully, upload file
-      const putImage = await fetch(signedUrl.toString(), {
+      await fetch(signedUrl.toString(), {
         method: 'PUT',
         headers: {
           Accept: 'application/json',
@@ -111,21 +127,16 @@ export const handleLogMeal = async (
       };
 
       // finally, if file upload successful, submit complete meal details to db
-      await fetch(`http://localhost:3000/meal/create`, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json; charset=utf-8',
+      await logMeal({
+        variables: {
+          input: createDto,
         },
-        body: JSON.stringify(createDto),
       })
         .then(async res => {
-          if (res.ok) {
-            return res.json();
+          if (res?.data) {
+            return res.data;
           }
-
-          const body = await res.json();
-          throw new Error(`${body.statusCode}, ${body.statusText}`);
+          throw new Error("Couldn't commit new meal");
         })
         .then(userMeal => {
           // userMeal should contain the newly created UserMeal object

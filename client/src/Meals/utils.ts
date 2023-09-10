@@ -38,11 +38,11 @@ export const handleSubscribe = (
   });
 };
 
-export const safeDestructure = (data: any) => {
+export const safeDestructure = (data: any): Paginated<UserMeal> => {
   const { entities, pageDetails } = data?.meals;
   const { total, hasBackward, hasForward } = pageDetails;
   return {
-    meals: entities ? entities : [],
+    entities: entities ? entities : [],
     pageDetails: { hasBackward, hasForward, total: total ?? 0 },
   };
 };
