@@ -7,18 +7,18 @@ import { UserMeal } from '../Meal/types';
 import { encode } from '../utils/encoding';
 
 interface MealCardsProps {
-  ref: React.RefObject<ScrollView | undefined>;
+  scrollRef: React.RefObject<ScrollView | undefined>;
   meals: UserMeal[] | null;
   page: number;
 }
 
-export const MealCards: React.FC<MealCardsProps> = ({ ref, meals, page }) => {
+export const MealCards: React.FC<MealCardsProps> = ({ scrollRef, meals, page }) => {
   const navigate = useNavigate();
 
   // TODO: clean this mess up
   return (
     <ScrollView
-      ref={ref as LegacyRef<ScrollView>}
+      ref={scrollRef as LegacyRef<ScrollView>}
       contentContainerStyle={{ padding: 5 }}
       alwaysBounceVertical={true}>
       <VStack fill spacing={8} mb={90}>
@@ -28,7 +28,7 @@ export const MealCards: React.FC<MealCardsProps> = ({ ref, meals, page }) => {
 
             return (
               <Card
-                key={meal.id}
+                key={idx}
                 onPress={() => navigate(`/meal/${encode(String(meal.id))}`)}>
                 <Card.Title
                   title={

@@ -1,5 +1,5 @@
-export interface PageDetails {
-  hasBackward: boolean;
-  hasForward: boolean;
-  total: number;
+export class PageDetails {
+  hasBackward?: boolean = false;
+  hasForward?: boolean = false;
+  total?: number = 0;
 }
