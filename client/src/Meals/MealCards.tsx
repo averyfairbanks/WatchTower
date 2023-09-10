@@ -21,7 +21,7 @@ export const MealCards: React.FC<MealCardsProps> = ({ scrollRef, meals, page }) 
       ref={scrollRef as LegacyRef<ScrollView>}
       contentContainerStyle={{ padding: 5 }}
       alwaysBounceVertical={true}>
-      <VStack fill spacing={8} mb={90}>
+      <VStack fill spacing={8} mb={85}>
         {meals &&
           meals.map((meal, idx) => {
             const convDateTime = new Date(meal.timeLogged).toLocaleString();

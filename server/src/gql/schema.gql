@@ -30,7 +30,7 @@ type PaginatedUserMeals {
 }
 
 type Query {
-  meal(mealId: Float!, userId: String!): UserMeal!
+  meal(mealId: String!, userId: String!): UserMeal!
   meals(page: Int! = 1, pageLimit: Int! = 10, searchTerm: String! = "", userId: String!): PaginatedUserMeals!
   user(id: String!): User!
 }

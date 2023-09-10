@@ -6,7 +6,7 @@ import { MealsService } from './meals.service';
 import { PaginatedUserMeals, UserMeal } from './model/user-meal.model';
 
 const pubSub = new PubSub();
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 @Resolver()
 export class MealResolver {
@@ -18,7 +18,7 @@ export class MealResolver {
   }
 
   @Query(() => UserMeal)
-  async meal(@Args('userId') userId: string, @Args('mealId') mealId: number) {
+  async meal(@Args('userId') userId: string, @Args('mealId') mealId: string): Promise<UserMeal> {
     return this.mealsService.findOneWithIds(userId, mealId);
   }
 

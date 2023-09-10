@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 export const GET_ALL_MEALS_QUERY = gql`
-  query ($userId: String!, $page: Int, $pageLimit: Int) {
+  query GetAllMealsQuery($userId: String!, $page: Int, $pageLimit: Int) {
     meals(userId: $userId, page: $page, pageLimit: $pageLimit) {
       entities {
         id

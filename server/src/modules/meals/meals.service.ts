@@ -30,9 +30,10 @@ export class MealsService {
    */
   async findOneWithIds(
     encodedUserId: string,
-    mealId: number,
+    encodedMealId: string,
   ): Promise<UserMeal> {
     const userId = decode(encodedUserId);
+    const mealId = decode(encodedMealId);
     return this.userMealRepo.findOneBy({ userId, id: mealId }).then((meal) => {
       if (!meal) {
         throw new Error(

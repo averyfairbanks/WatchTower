@@ -1,12 +1,13 @@
+import { useQuery } from '@apollo/client';
 import { Box, VStack } from '@react-native-material/core';
-import { useEffect, useState } from 'react';
 import { Dimensions, Image, ScrollView, View } from 'react-native';
-import { Avatar, Surface, Text, TextInput, useTheme } from 'react-native-paper';
+import { Surface, Text, TextInput, useTheme } from 'react-native-paper';
 import { useParams } from 'react-router-native';
-import { useSnackBar } from '../common/SnackBar/hook';
-import { SnackType } from '../common/SnackBar/types';
+import { ErrorPage } from '../common/Error/Error';
+import { Loading } from '../common/Loading/Loading';
 import { _getUserDetails } from '../utils/storeMethods';
-import { UserMeal } from './types';
+import { GET_MEAL_QUERY } from './gql/GetMealQuery';
+import { StyledIcon } from './styled';
 
 const TEMP: React.FC = () => {
   const theme = useTheme();
@@ -26,41 +27,25 @@ const TEMP: React.FC = () => {
 };
 
 export const Meal: React.FC = () => {
-  const { id: mealId } = useParams<{ id: string }>();
-  const { id: userId } = _getUserDetails();
-
   const theme = useTheme();
-
-  const { addSnack } = useSnackBar();
-
-  const [meal, setMeal] = useState<UserMeal | null>(null);
   const { height, width } = Dimensions.get('screen');
 
-  useEffect(() => {
-    fetch(`http://localhost:3000/meal/${userId}/${mealId}`, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json; charset=utf-8',
-      },
-    })
-      .then(async res => {
-        if (res.ok) {
-          return res.json();
-        }
+  const { id: userId } = _getUserDetails();
+  const { id: mealId } = useParams<{ id: string }>();
 
-        const err = await res.json();
-        throw new Error(`${err.statusCode}, ${err.statusText}`);
-      })
-      .then(val => {
-        setMeal(val);
-      })
-      .catch(err => {
-        console.error(err);
-        addSnack('Error retrieving meal', SnackType.FAILURE);
-      });
-  }, []);
+  const { data, loading, error } = useQuery(GET_MEAL_QUERY, {
+    variables: { userId, mealId },
+  });
 
+  if (loading) {
+    return <Loading />;
+  }
+
+  if (error) {
+    return <ErrorPage message="Error retrieving meal" />;
+  }
+
+  const { meal } = data;
   return (
     <VStack fill>
       <ScrollView>
@@ -72,15 +57,7 @@ export const Meal: React.FC = () => {
                 margin: 0,
                 width: width,
               }}>
-              <Avatar.Icon
-                icon="food"
-                style={{
-                  position: 'absolute',
-                  top: 15,
-                  left: 15,
-                  zIndex: 1000,
-                }}
-              />
+              <StyledIcon icon="food" />
               <Image
                 source={{ uri: meal.photoUrl.toString() }}
                 style={{
