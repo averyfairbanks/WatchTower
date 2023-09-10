@@ -15,8 +15,8 @@ export const ProvidersWrapper: React.FC<{ children: ReactNode[] }> = ({
   const apolloClient = setupApolloClient();
 
   return (
-    <ApolloProvider client={apolloClient}>
-      <PaperProvider theme={theme}>
+    <PaperProvider theme={theme}>
+      <ApolloProvider client={apolloClient}>
         <NativeRouter>
           <SnackBarProvider>
             <AppBarProvider>
@@ -24,7 +24,7 @@ export const ProvidersWrapper: React.FC<{ children: ReactNode[] }> = ({
             </AppBarProvider>
           </SnackBarProvider>
         </NativeRouter>
-      </PaperProvider>
-    </ApolloProvider>
+      </ApolloProvider>
+    </PaperProvider>
   );
 };
