@@ -8,7 +8,7 @@ import { Loading } from '../common/Loading/Loading';
 import { NoResults } from '../common/NoResults.tsx/NoResults';
 import { Paginator } from '../common/Pagination/Paginator';
 import { _getUserDetails } from '../utils/storeMethods';
-import { MealCard } from './MealCards';
+import { MealCard } from './MealCard';
 import { GET_ALL_MEALS_QUERY } from './gql/GetMealsQuery';
 import { safeDestructure } from './utils';
 
@@ -16,7 +16,7 @@ export const Meals: React.FC = () => {
   const { colors } = useTheme();
 
   // ref for scrollToTop
-  const ref = useRef<ScrollView>(null);
+  const scrollRef = useRef<FlatList>(null);
 
   // search variables
   const { id: userId } = _getUserDetails();
@@ -49,8 +49,8 @@ export const Meals: React.FC = () => {
   const { hasBackward, hasForward, total } = pageDetails;
 
   const handlePageChange = (forward: boolean) => {
-    ref.current?.scrollTo({
-      y: 0,
+    scrollRef.current?.scrollToOffset({
+      offset: 0,
       animated: true,
     });
 
@@ -61,34 +61,40 @@ export const Meals: React.FC = () => {
     }
   };
 
-  if (meals && meals.length > 0) {
-    return (
-      <>
-        <FlatList
-          data={meals}
-          renderItem={meal => (
-            <MealCard meal={meal.item} page={req.page} idx={meal.index} />
-          )}
-          keyExtractor={item => String(item.id)}
-          refreshControl={
-            <RefreshControl refreshing={loading} onRefresh={() => refetch()} />
-          }
-          contentContainerStyle={{
-            padding: 5,
-            flexGrow: 1,
-            backgroundColor: colors.background,
-            paddingBottom: 85,
-          }}
-          keyboardDismissMode="on-drag"
-          alwaysBounceVertical={true}
-        />
+  return (
+    <>
+      <FlatList
+        ref={scrollRef}
+        data={meals}
+        renderItem={meal => (
+          <MealCard meal={meal.item} page={req.page} idx={meal.index} />
+        )}
+        keyExtractor={item => String(item.id)}
+        refreshControl={
+          <RefreshControl
+            colors={[colors.background]}
+            tintColor={colors.primary}
+            progressBackgroundColor={colors.primary}
+            refreshing={loading}
+            onRefresh={() => refetch()}
+          />
+        }
+        ListEmptyComponent={<NoResults noMeals={!searchTerm && total === 0} />}
+        contentContainerStyle={{
+          padding: 5,
+          flexGrow: 1,
+          backgroundColor: colors.background,
+          paddingBottom: !!meals.length ? 85 : 0,
+        }}
+        keyboardDismissMode="on-drag"
+        alwaysBounceVertical={true}
+      />
+      {!!meals.length && (
         <Paginator
           handlePageChange={handlePageChange}
           pageDetails={pageDetails}
         />
-      </>
-    );
-  }
-
-  return <NoResults noMeals={!searchTerm && total === 0} />;
+      )}
+    </>
+  );
 };

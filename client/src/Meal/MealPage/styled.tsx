@@ -1,7 +1,7 @@
 import { Avatar } from 'react-native-paper';
 import styled from 'styled-components';
 
-export const StyledIcon = styled(Avatar.Icon)`
+export const StyledFoodIcon = styled(Avatar.Icon)`
   position: absolute;
   top: 15px;
   left: 15px;

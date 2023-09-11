@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-native';
 import { UserMeal } from '../Meal/types';
 import { encode } from '../utils/encoding';
 
-interface MealCardsProps {
+interface MealCardProps {
   scrollRef: React.RefObject<ScrollView | undefined>;
   meals: UserMeal[] | null;
   page: number;
@@ -62,7 +62,7 @@ export const MealCard: React.FC<{
   );
 };
 
-export const MealCards: React.FC<MealCardsProps> = ({
+export const MealCards: React.FC<MealCardProps> = ({
   scrollRef,
   meals,
   page,
