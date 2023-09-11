@@ -88,6 +88,7 @@ export class MealsService {
       name,
       description,
       photoUrl: `${process.env.REACT_APP_PHOTO_HOST}/${photoUrl}`,
+      timeLogged: new Date(Date.now()),
     };
 
     return await this.userMealRepo

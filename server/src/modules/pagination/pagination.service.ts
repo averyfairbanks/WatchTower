@@ -23,8 +23,6 @@ export class PaginationService {
       qb.andWhere(whereStatement, argument);
     });
 
-    console.log(qb.getQueryAndParameters());
-
     return qb.getRawOne();
   }
 }
