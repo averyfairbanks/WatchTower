@@ -1,18 +1,20 @@
 import { useQuery } from '@apollo/client';
 import { useEffect, useRef, useState } from 'react';
-import { ScrollView } from 'react-native';
+import { FlatList, RefreshControl, ScrollView } from 'react-native';
+import { useTheme } from 'react-native-paper';
 import { useSearchbarContext } from '../common/AppBar/hook';
 import { ErrorPage } from '../common/Error/Error';
 import { Loading } from '../common/Loading/Loading';
 import { NoResults } from '../common/NoResults.tsx/NoResults';
 import { Paginator } from '../common/Pagination/Paginator';
 import { _getUserDetails } from '../utils/storeMethods';
-import { MealCards } from './MealCards';
+import { MealCard } from './MealCards';
 import { GET_ALL_MEALS_QUERY } from './gql/GetMealsQuery';
-import { MEAL_LOGGED_SUBSCRIPTION } from './gql/MealLoggedSubscription';
-import { handleSubscribe, safeDestructure } from './utils';
+import { safeDestructure } from './utils';
 
 export const Meals: React.FC = () => {
+  const { colors } = useTheme();
+
   // ref for scrollToTop
   const ref = useRef<ScrollView>(null);
 
@@ -31,7 +33,7 @@ export const Meals: React.FC = () => {
   }, [searchTerm]);
 
   // query and utils
-  const { data, loading, error, subscribeToMore } = useQuery(
+  const { data, loading, error, refetch } = useQuery(
     GET_ALL_MEALS_QUERY,
     {
       variables: req,
@@ -45,13 +47,6 @@ export const Meals: React.FC = () => {
   if (error) {
     return <ErrorPage />;
   }
-
-  // config for handling new mealLogged subscription
-  subscribeToMore({
-    document: MEAL_LOGGED_SUBSCRIPTION,
-    variables: req,
-    updateQuery: handleSubscribe,
-  });
 
   const { entities: meals, pageDetails } = safeDestructure(data);
   const { hasBackward, hasForward, total } = pageDetails;
@@ -72,7 +67,27 @@ export const Meals: React.FC = () => {
   if (meals && meals.length > 0) {
     return (
       <>
-        <MealCards scrollRef={ref} meals={meals} page={req.page} />
+        <FlatList
+          data={meals}
+          renderItem={meal => (
+            <MealCard meal={meal.item} page={req.page} idx={meal.index} />
+          )}
+          keyExtractor={item => String(item.id)}
+          refreshControl={
+            <RefreshControl
+              refreshing={loading}
+              onRefresh={() => refetch()}
+            />
+          }
+          contentContainerStyle={{
+            padding: 5,
+            flexGrow: 1,
+            backgroundColor: colors.background,
+            paddingBottom: 85,
+          }}
+          keyboardDismissMode="on-drag"
+          alwaysBounceVertical={true}
+        />
         <Paginator
           handlePageChange={handlePageChange}
           pageDetails={pageDetails}
