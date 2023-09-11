@@ -10,4 +10,3 @@ export interface CreateMealDto {
 export type LogMealFormValues = Omit<CreateMealDto, 'photoUrl'> & {
   image?: Asset;
 };
-

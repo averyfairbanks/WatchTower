@@ -10,7 +10,7 @@ export class UserResolver {
   @Query(() => User)
   async user(@Args('id') id: string): Promise<User> {
     const userId = decode(id);
-    
-    return this.userService.findUserById(userId)
+
+    return this.userService.findUserById(userId);
   }
 }

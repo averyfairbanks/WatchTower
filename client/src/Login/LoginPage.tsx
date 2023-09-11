@@ -33,7 +33,7 @@ export const LoginPage: React.FC = () => {
   }
 
   const { user } = data;
-  const {firstName, lastName} = user;
+  const { firstName, lastName } = user;
 
   const handleLogin = () => {
     if (firstName && lastName) {
@@ -48,22 +48,14 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-
   return (
     <Stack fill center spacing={40}>
       <Box>
         <WatchTowerIcon size={200} />
       </Box>
       <Stack w={300} spacing={10}>
-        <TextInput
-          label="First Name"
-          value={firstName}
-         
-        />
-        <TextInput
-          label="Last Name"
-          value={lastName}
-        />
+        <TextInput label="First Name" value={firstName} />
+        <TextInput label="Last Name" value={lastName} />
       </Stack>
       <Button mode="elevated" onPress={handleLogin}>
         Log In

@@ -13,4 +13,3 @@ export const LOG_MEAL_MUTATION = gql`
     }
   }
 `;
-

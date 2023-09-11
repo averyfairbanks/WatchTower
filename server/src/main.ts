@@ -13,7 +13,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   await app.listen(3000);
-  
+
   console.log(`Server started on port ${await app.getUrl()}`);
 }
 bootstrap();

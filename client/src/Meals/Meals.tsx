@@ -33,12 +33,9 @@ export const Meals: React.FC = () => {
   }, [searchTerm]);
 
   // query and utils
-  const { data, loading, error, refetch } = useQuery(
-    GET_ALL_MEALS_QUERY,
-    {
-      variables: req,
-    },
-  );
+  const { data, loading, error, refetch } = useQuery(GET_ALL_MEALS_QUERY, {
+    variables: req,
+  });
 
   if (loading) {
     return <Loading />;
@@ -74,10 +71,7 @@ export const Meals: React.FC = () => {
           )}
           keyExtractor={item => String(item.id)}
           refreshControl={
-            <RefreshControl
-              refreshing={loading}
-              onRefresh={() => refetch()}
-            />
+            <RefreshControl refreshing={loading} onRefresh={() => refetch()} />
           }
           contentContainerStyle={{
             padding: 5,
