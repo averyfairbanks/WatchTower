@@ -95,6 +95,14 @@ export class MealsService {
       .then((meal) => this.userMealRepo.findOneBy({ id: meal.id }));
   }
 
+  async deleteMeal(encodedUserId: string, encodedMealId: string) {
+    const userId = decode(encodedUserId);
+    const id = decode(encodedMealId);
+
+    await this.userMealRepo.delete([userId, id]);
+    return true;
+  }
+
   /**
    * HELPERS
    */
