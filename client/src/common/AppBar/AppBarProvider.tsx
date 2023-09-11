@@ -1,8 +1,7 @@
 import { Stack } from '@react-native-material/core';
 import { ReactNode, createContext, useEffect, useState } from 'react';
-import { Appbar, Searchbar } from 'react-native-paper';
+import { Appbar, Searchbar, useTheme } from 'react-native-paper';
 import { useLocation, useNavigate } from 'react-router-native';
-import { store } from '../../../store';
 import { _getUserDetails, _isLoggedIn } from '../../utils/storeMethods';
 
 export const AppBarContext = createContext('');

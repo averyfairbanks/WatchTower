@@ -33,7 +33,6 @@ const TEMP: React.FC = () => {
 };
 
 export const Meal: React.FC = () => {
-  const theme = useTheme();
   const { height, width } = Dimensions.get('screen');
 
   const { id: userId } = _getUserDetails();
@@ -62,7 +61,6 @@ export const Meal: React.FC = () => {
         <>
           <Surface
             style={{
-              backgroundColor: theme.colors.onTertiary,
               margin: 0,
               width: width,
             }}>

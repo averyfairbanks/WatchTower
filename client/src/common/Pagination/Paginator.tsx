@@ -12,7 +12,7 @@ export const Paginator: React.FC<PaginatorProps> = ({
   handlePageChange,
   pageDetails,
 }) => {
-  const theme = useTheme();
+  const { colors } = useTheme();
   const navigate = useNavigate();
   const { hasBackward, hasForward } = pageDetails;
 
@@ -20,7 +20,7 @@ export const Paginator: React.FC<PaginatorProps> = ({
     <>
       <BottomBar
         style={{
-          backgroundColor: theme.colors.primary,
+          backgroundColor: colors.primary,
         }}>
         {hasBackward && (
           <PaginatorArrow

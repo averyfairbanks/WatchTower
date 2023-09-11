@@ -17,7 +17,7 @@ export const MealCards: React.FC<MealCardsProps> = ({
   meals,
   page,
 }) => {
-  const theme = useTheme();
+  const { colors } = useTheme();
   const navigate = useNavigate();
 
   // TODO: clean this mess up
@@ -26,7 +26,7 @@ export const MealCards: React.FC<MealCardsProps> = ({
       ref={scrollRef as LegacyRef<ScrollView>}
       contentContainerStyle={{
         padding: 5,
-        backgroundColor: theme.colors.backdrop,
+        backgroundColor: colors.background,
       }}
       alwaysBounceVertical={true}>
       <VStack fill spacing={8} mb={85}>
