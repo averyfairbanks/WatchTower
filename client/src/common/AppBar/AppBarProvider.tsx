@@ -9,6 +9,7 @@ export const AppBarContext = createContext('');
 export const AppBarProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
+  const {colors} = useTheme();
   const navigate = useNavigate();
 
   const [state, setState] = useState({
@@ -52,7 +53,7 @@ export const AppBarProvider: React.FC<{ children: ReactNode }> = ({
     <AppBarContext.Provider value={searchTerm}>
       {_isLoggedIn() ? (
         <Stack>
-          <Appbar.Header>
+          <Appbar.Header elevated={true}>
             {state.back && (
               <Appbar.BackAction
                 onPress={() => {

@@ -19,12 +19,13 @@ export const handleSubscribe = (
   if (!subscriptionData) return prev;
 
   const loggedMeal = subscriptionData.data.mealLogged;
+  console.log(variables);
 
   const existingMeals = prev.meals.entities.filter(
     (meal: UserMeal) => meal.id !== loggedMeal.id,
   );
   const existingPageDetails = prev.meals.pageDetails;
-  const newTotal = existingPageDetails.total + 1
+  const newTotal = existingPageDetails.total + 1;
 
   return Object.assign({}, prev, {
     meals: Object.assign({}, prev.meals, {
@@ -33,7 +34,9 @@ export const handleSubscribe = (
         variables?.pageLimit ?? 10,
       ),
       pageDetails: Object.assign({}, existingPageDetails, {
-        hasForward: newTotal > (variables?.pageLimit ?? 10),
+        hasForward:
+          newTotal > (variables?.pageLimit ?? 10) &&
+          (variables?.page ?? 1 === 1),
         total: newTotal,
       }),
     }),

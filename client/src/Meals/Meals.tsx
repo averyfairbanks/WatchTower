@@ -81,5 +81,5 @@ export const Meals: React.FC = () => {
     );
   }
 
-  return <NoResults noMeals={total === 0} />;
+  return <NoResults noMeals={!searchTerm && total === 0} />;
 };
