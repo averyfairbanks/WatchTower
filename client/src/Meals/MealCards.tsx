@@ -3,7 +3,7 @@ import { LegacyRef } from 'react';
 import { ScrollView } from 'react-native';
 import { Avatar, Badge, Card, Text, useTheme } from 'react-native-paper';
 import { useNavigate } from 'react-router-native';
-import { UserMeal } from '../Meal/MealPage/types';
+import { UserMeal } from '../Meal/types';
 import { encode } from '../utils/encoding';
 
 interface MealCardsProps {
@@ -26,6 +26,7 @@ export const MealCards: React.FC<MealCardsProps> = ({
       ref={scrollRef as LegacyRef<ScrollView>}
       contentContainerStyle={{
         padding: 5,
+        flexGrow: 1,
         backgroundColor: colors.background,
       }}
       alwaysBounceVertical={true}>

@@ -24,6 +24,7 @@ export const handleSubscribe = (
     (meal: UserMeal) => meal.id !== loggedMeal.id,
   );
   const existingPageDetails = prev.meals.pageDetails;
+  const newTotal = existingPageDetails.total + 1
 
   return Object.assign({}, prev, {
     meals: Object.assign({}, prev.meals, {
@@ -32,7 +33,8 @@ export const handleSubscribe = (
         variables?.pageLimit ?? 10,
       ),
       pageDetails: Object.assign({}, existingPageDetails, {
-        total: existingPageDetails.total + 1,
+        hasForward: newTotal > (variables?.pageLimit ?? 10),
+        total: newTotal,
       }),
     }),
   });
