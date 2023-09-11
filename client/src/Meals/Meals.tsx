@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { useEffect, useRef, useState } from 'react';
-import { FlatList, RefreshControl, ScrollView } from 'react-native';
+import { FlatList, RefreshControl } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { useSearchbarContext } from '../common/AppBar/hook';
 import { ErrorPage } from '../common/Error/Error';
