@@ -3,8 +3,6 @@ import { VStack } from '@react-native-material/core';
 import { useState } from 'react';
 import { Dimensions, Image, ScrollView } from 'react-native';
 import {
-  Button,
-  Dialog,
   Divider,
   IconButton,
   Surface,
@@ -16,36 +14,56 @@ import { useNavigate, useParams } from 'react-router-native';
 import { ErrorPage } from '../../common/Error/Error';
 import { Loading } from '../../common/Loading/Loading';
 import { _getUserDetails } from '../../utils/storeMethods';
+import { DeleteMealDialog } from './DeleteMealDialog';
 import { DELETE_MEAL } from './gql/DeleteMealMutation';
 import { GET_MEAL_QUERY } from './gql/GetMealQuery';
 import { StyledFoodIcon } from './styled';
 
 export const Meal: React.FC = () => {
+  // for styling text input
   const { colors } = useTheme();
 
+  // to exit page
   const navigate = useNavigate();
 
+  // For setting image height/width
   const { height, width } = Dimensions.get('screen');
 
+  // collect detaials for query/mutation
   const { id: userId } = _getUserDetails();
   const { id: mealId } = useParams<{ id: string }>();
 
+  // relevant query and mutation
   const { data, loading, error } = useQuery(GET_MEAL_QUERY, {
     variables: { userId, mealId },
   });
 
-  const [deleteMeal, { loading: mutationLoading }] = useMutation(DELETE_MEAL);
+  const [deleteMeal, { loading: mutationLoading, error: mutationError }] =
+    useMutation(DELETE_MEAL);
 
+  // open state for delete confirmation dialog
   const [open, setOpen] = useState<boolean>(false);
 
+  // loading or error early return
   if (loading || mutationLoading) {
     return <Loading />;
   }
 
-  if (error) {
-    return <ErrorPage message="Error retrieving meal" />;
+  if (error || mutationError) {
+    const msg = error
+      ? 'Error retrieving meal'
+      : mutationError
+      ? 'Error deleting meal, please try again'
+      : undefined;
+    return <ErrorPage message={msg} />;
   }
 
+  const confirmMealDelete = async () => {
+    await deleteMeal({ variables: { userId, mealId } });
+    navigate(-1);
+  };
+
+  // extract data if not loading/no error
   const { meal } = data;
   const [date, time] = new Date(meal.timeLogged)
     .toLocaleString()
@@ -87,28 +105,8 @@ export const Meal: React.FC = () => {
             multiline={true}
             numberOfLines={20}
           />
-          <Dialog
-            visible={open}
-            dismissable={true}
-            onDismiss={() => setOpen(false)}
-            style={{ alignItems: 'center' }}>
-            <Dialog.Icon icon="delete" />
-            <Dialog.Title>Delete Meal</Dialog.Title>
-            <Dialog.Content>
-              <Text>Are you sure you want to delete this meal?</Text>
-            </Dialog.Content>
-            <Dialog.Actions>
-              <Button
-                onPress={async () => {
-                  await deleteMeal({ variables: { userId, mealId } });
-                  navigate(-1);
-                }}>
-                Yes
-              </Button>
-              <Button onPress={() => setOpen(false)}>Cancel</Button>
-            </Dialog.Actions>
-          </Dialog>
 
+          {/* Delete Button */}
           <IconButton
             mode="contained"
             size={50}
@@ -119,6 +117,13 @@ export const Meal: React.FC = () => {
               alignSelf: 'center',
             }}
             onPress={() => setOpen(true)}
+          />
+
+          {/* Confirm delete dialog */}
+          <DeleteMealDialog
+            open={open}
+            setOpen={setOpen}
+            confirmMealDelete={confirmMealDelete}
           />
         </>
       )}

@@ -42,6 +42,7 @@ export const Meals: React.FC = () => {
   }
 
   if (error) {
+    console.log(JSON.stringify(error));
     return <ErrorPage />;
   }
 
