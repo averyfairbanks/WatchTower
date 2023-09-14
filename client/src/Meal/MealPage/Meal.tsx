@@ -1,33 +1,43 @@
 import { useMutation, useQuery } from '@apollo/client';
-import { VStack } from '@react-native-material/core';
+import { Selector, VStack } from '@react-native-material/core';
 import { useState } from 'react';
 import { Dimensions, Image, ScrollView } from 'react-native';
 import {
   Divider,
-  IconButton,
   Surface,
   Text,
   TextInput,
   useTheme,
 } from 'react-native-paper';
 import { useNavigate, useParams } from 'react-router-native';
+import styled from 'styled-components';
 import { ErrorPage } from '../../common/Error/Error';
 import { Loading } from '../../common/Loading/Loading';
 import { _getUserDetails } from '../../utils/storeMethods';
 import { DeleteMealDialog } from './DeleteMealDialog';
 import { DELETE_MEAL } from './gql/DeleteMealMutation';
 import { GET_MEAL_QUERY } from './gql/GetMealQuery';
-import { StyledFoodIcon } from './styled';
+import { StyledDeleteIcon, StyledFoodIcon } from './styled';
 
 export const Meal: React.FC = () => {
   // for styling text input
   const { colors } = useTheme();
+
+  const StyledTextInput = styled(TextInput).attrs({
+    mode: 'flat',
+    theme: { colors: { onSurfaceDisabled: colors.onPrimaryContainer } },
+    disabled: true,
+    multiline: true,
+    numberOfLines: 15,
+  })``;
 
   // to exit page
   const navigate = useNavigate();
 
   // For setting image height/width
   const { height, width } = Dimensions.get('screen');
+
+  const StyledSurface = styled(Surface).attrs({ style: { width } })``;
 
   // collect detaials for query/mutation
   const { id: userId } = _getUserDetails();
@@ -73,11 +83,7 @@ export const Meal: React.FC = () => {
     <ScrollView>
       {meal && (
         <>
-          <Surface
-            style={{
-              margin: 0,
-              width: width,
-            }}>
+          <StyledSurface>
             <StyledFoodIcon icon="food" />
             <Image
               source={{ uri: meal.photoUrl.toString() }}
@@ -88,36 +94,20 @@ export const Meal: React.FC = () => {
             />
             <VStack m={10} spacing={5}>
               <Text variant="displaySmall">{meal.name}</Text>
-              <Divider />
               <Text variant="titleSmall">
                 <Text>Logged On: {date}</Text>
                 <Text>
                   {'\n'}At: {time}
                 </Text>
               </Text>
+              <Divider bold style={{ marginTop: 20 }} />
+              <Text variant="titleLarge">Description</Text>
             </VStack>
-          </Surface>
-          <TextInput
-            mode="flat"
-            theme={{ colors: { onSurfaceDisabled: colors.onPrimaryContainer } }}
-            disabled={true}
-            value={meal.description}
-            multiline={true}
-            numberOfLines={20}
-          />
+            <StyledTextInput value={meal.description} />
+          </StyledSurface>
 
           {/* Delete Button */}
-          <IconButton
-            mode="contained"
-            size={50}
-            icon="delete"
-            style={{
-              position: 'absolute',
-              bottom: 10,
-              alignSelf: 'center',
-            }}
-            onPress={() => setOpen(true)}
-          />
+          <StyledDeleteIcon icon="delete" onPress={() => setOpen(true)} />
 
           {/* Confirm delete dialog */}
           <DeleteMealDialog
