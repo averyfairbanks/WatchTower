@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { AppBarContext } from './AppBarProvider';
 
-export const useSearchbarContext = () => {
+export const useAppbarContext = () => {
   return useContext(AppBarContext);
 };

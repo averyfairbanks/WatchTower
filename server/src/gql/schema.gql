@@ -9,9 +9,7 @@ input CreateMealInput {
   userId: String!
 }
 
-"""
-Date custom scalar type
-"""
+"""Date custom scalar type"""
 scalar Date
 
 type Mutation {
@@ -32,12 +30,7 @@ type PaginatedUserMeals {
 
 type Query {
   meal(mealId: String!, userId: String!): UserMeal!
-  meals(
-    page: Int! = 1
-    pageLimit: Int! = 10
-    searchTerm: String! = ""
-    userId: String!
-  ): PaginatedUserMeals!
+  meals(page: Int! = 1, pageLimit: Int! = 10, searchTerm: String! = "", userId: String!): PaginatedUserMeals!
   user(id: String!): User!
 }
 
@@ -45,9 +38,7 @@ type Subscription {
   mealLogged: UserMeal!
 }
 
-"""
-Represents an app user
-"""
+"""Represents an app user"""
 type User {
   email: String!
   firstName: String!
@@ -55,9 +46,7 @@ type User {
   lastName: String!
 }
 
-"""
-Represents meal details logged by users
-"""
+"""Represents meal details logged by users"""
 type UserMeal {
   description: String!
   id: Float!

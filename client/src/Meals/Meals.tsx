@@ -1,8 +1,8 @@
 import { useQuery } from '@apollo/client';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { FlatList, RefreshControl } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import { useSearchbarContext } from '../common/AppBar/hook';
+import { useAppbarContext } from '../common/AppBar/hook';
 import { ErrorPage } from '../common/Error/Error';
 import { Loading } from '../common/Loading/Loading';
 import { NoResults } from '../common/NoResults.tsx/NoResults';
@@ -19,8 +19,9 @@ export const Meals: React.FC = () => {
   const scrollRef = useRef<FlatList>(null);
 
   // search variables
-  const { id: userId } = _getUserDetails();
-  const searchTerm = useSearchbarContext();
+  const { id: userId, firstName } = _getUserDetails();
+  const { searchTerm, updateAppbar } = useAppbarContext();
+
   const [req, setReq] = useState({
     userId,
     page: 1,
@@ -37,12 +38,22 @@ export const Meals: React.FC = () => {
     variables: req,
   });
 
+  useEffect(() => {
+    if (error) {
+      updateAppbar({
+        back: false,
+        search: false,
+        searchOpen: false,
+        titleMessage: '',
+      });
+    }
+  }, [error]);
+
   if (loading) {
     return <Loading />;
   }
 
   if (error) {
-    console.log(JSON.stringify(error));
     return <ErrorPage />;
   }
 

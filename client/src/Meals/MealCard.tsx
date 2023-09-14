@@ -22,7 +22,9 @@ export const MealCard: React.FC<{
   const mealUrl = `/meal/${encode(String(meal.id))}`;
 
   return (
-    <Card style={{ marginBottom: 8 }} onPress={() => navigate(mealUrl)}>
+    <Card
+      style={{ marginBottom: 8, paddingBottom: 10 }}
+      onPress={() => navigate(mealUrl)}>
       <Card.Title
         title={
           leadMeal ? (
@@ -42,7 +44,7 @@ export const MealCard: React.FC<{
         right={meal.notified ? undefined : () => <Badge />}
         rightStyle={{ margin: 10 }}
       />
-      
+
       {leadMeal && (
         <>
           <Card.Cover
