@@ -18,7 +18,10 @@ export class MealResolver {
   }
 
   @Query(() => UserMeal)
-  async meal(@Args('userId') userId: string, @Args('mealId') mealId: string): Promise<UserMeal> {
+  async meal(
+    @Args('userId') userId: string,
+    @Args('mealId') mealId: string,
+  ): Promise<UserMeal> {
     return this.mealsService.findOneWithIds(userId, mealId);
   }
 
@@ -29,6 +32,14 @@ export class MealResolver {
       pubSub.publish('mealLogged', { mealLogged: newMeal }),
     );
     return newMeal;
+  }
+
+  @Mutation(() => Boolean)
+  async deleteMeal(
+    @Args('userId') userId: string,
+    @Args('mealId') mealId: string,
+  ) {
+    return this.mealsService.deleteMeal(userId, mealId);
   }
 
   @Subscription(() => UserMeal)

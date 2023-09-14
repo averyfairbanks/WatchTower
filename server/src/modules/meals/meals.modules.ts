@@ -6,9 +6,16 @@ import { UserService } from '../user/user.service';
 import { MealsService } from './meals.service';
 import { UserMeal } from './model/user-meal.model';
 import { MealResolver } from './meals.resolver';
+import { DateScalar } from 'src/common/date.scalar';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, UserMeal])],
-  providers: [MealResolver, MealsService, UserService, PaginationService],
+  providers: [
+    DateScalar,
+    MealResolver,
+    MealsService,
+    UserService,
+    PaginationService,
+  ],
 })
 export class MealsModule {}

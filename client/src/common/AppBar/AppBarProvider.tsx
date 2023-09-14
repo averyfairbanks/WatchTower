@@ -1,8 +1,7 @@
 import { Stack } from '@react-native-material/core';
 import { ReactNode, createContext, useEffect, useState } from 'react';
-import { Appbar, Searchbar } from 'react-native-paper';
+import { Appbar, Searchbar, useTheme } from 'react-native-paper';
 import { useLocation, useNavigate } from 'react-router-native';
-import { store } from '../../../store';
 import { _getUserDetails, _isLoggedIn } from '../../utils/storeMethods';
 
 export const AppBarContext = createContext('');
@@ -10,6 +9,19 @@ export const AppBarContext = createContext('');
 export const AppBarProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
+  const { colors } = useTheme();
+
+  const searchTheme = {
+    colors: {
+      primary: colors.onPrimary,
+      onSurface: colors.surfaceVariant,
+      onSurfaceVariant: colors.onPrimary,
+      elevation: {
+        level3: colors.primary,
+      },
+    },
+  };
+
   const navigate = useNavigate();
 
   const [state, setState] = useState({
@@ -48,13 +60,14 @@ export const AppBarProvider: React.FC<{ children: ReactNode }> = ({
   }, [path]);
 
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const { back, search, searchOpen, titleMessage } = state;
 
   return (
     <AppBarContext.Provider value={searchTerm}>
       {_isLoggedIn() ? (
         <Stack>
-          <Appbar.Header>
-            {state.back && (
+          <Appbar.Header elevated={true}>
+            {back && (
               <Appbar.BackAction
                 onPress={() => {
                   setState({ ...state, searchOpen: false });
@@ -63,18 +76,24 @@ export const AppBarProvider: React.FC<{ children: ReactNode }> = ({
                 }}
               />
             )}
-            {!state.searchOpen && <Appbar.Content title={state.titleMessage} />}
-            {state.search && !state.searchOpen && (
+            {!searchOpen && <Appbar.Content title={titleMessage} />}
+            {search && !searchOpen && (
               <Appbar.Action
                 icon="magnify"
                 onPress={() => setState({ ...state, searchOpen: true })}
               />
             )}
-            {state.searchOpen && (
+            {searchOpen && (
               <Searchbar
+                theme={searchTheme}
+                returnKeyType="done"
                 placeholder="Search"
-                onChangeText={setSearchTerm}
                 value={searchTerm}
+                onChangeText={setSearchTerm}
+                onClearIconPress={() =>
+                  setState({ ...state, searchOpen: false })
+                }
+                onBlur={() => setState({ ...state, searchOpen: false })}
               />
             )}
           </Appbar.Header>

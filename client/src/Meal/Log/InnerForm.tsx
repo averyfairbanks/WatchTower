@@ -3,19 +3,21 @@ import { VStack } from '@react-native-material/core';
 import { useFormikContext } from 'formik';
 import { useCallback, useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { Button, Text, TextInput } from 'react-native-paper';
+import { Button, Text, TextInput, useTheme } from 'react-native-paper';
 import { useNavigate } from 'react-router-native';
 import { ErrorPage } from '../../common/Error/Error';
 import { Loading } from '../../common/Loading/Loading';
 import { useSnackBar } from '../../common/SnackBar/hook';
 import { LOG_MEAL_MUTATION } from './gql/LogNewMealMutation';
 import { StyledSubmit, StyledText, StyledTextInput } from './styled';
-import { CreateMealDto, LogMealFormValues } from './types';
+import { LogMealFormValues } from './types';
 import { _pickImage, handleLogMeal } from './utils';
 
 interface InnerFormProps {}
 
 export const InnerForm: React.FC<InnerFormProps> = () => {
+  const { colors } = useTheme();
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [logMeal, { loading, error }] = useMutation(LOG_MEAL_MUTATION);
 

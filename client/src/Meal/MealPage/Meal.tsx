@@ -1,6 +1,7 @@
-import { useQuery } from '@apollo/client';
-import { Box, VStack } from '@react-native-material/core';
-import { Dimensions, Image, ScrollView, View } from 'react-native';
+import { useMutation, useQuery } from '@apollo/client';
+import { Selector, VStack } from '@react-native-material/core';
+import { useState } from 'react';
+import { Dimensions, Image, ScrollView } from 'react-native';
 import {
   Divider,
   Surface,
@@ -8,49 +9,71 @@ import {
   TextInput,
   useTheme,
 } from 'react-native-paper';
-import { useParams } from 'react-router-native';
+import { useNavigate, useParams } from 'react-router-native';
+import styled from 'styled-components';
 import { ErrorPage } from '../../common/Error/Error';
 import { Loading } from '../../common/Loading/Loading';
 import { _getUserDetails } from '../../utils/storeMethods';
+import { DeleteMealDialog } from './DeleteMealDialog';
+import { DELETE_MEAL } from './gql/DeleteMealMutation';
 import { GET_MEAL_QUERY } from './gql/GetMealQuery';
-import { StyledIcon } from './styled';
-
-const TEMP: React.FC = () => {
-  const theme = useTheme();
-  const { width } = Dimensions.get('screen');
-
-  return Object.entries(theme.colors).map(([key, val]) => (
-    <View key={key.toString()}>
-      <Text>{key.toString()}</Text>
-      <Box
-        style={{
-          width,
-          height: 200,
-          backgroundColor: val.toString(),
-        }}></Box>
-    </View>
-  ));
-};
+import { StyledDeleteIcon, StyledFoodIcon } from './styled';
 
 export const Meal: React.FC = () => {
-  const theme = useTheme();
+  // for styling text input
+  const { colors } = useTheme();
+
+  const StyledTextInput = styled(TextInput).attrs({
+    mode: 'flat',
+    theme: { colors: { onSurfaceDisabled: colors.onPrimaryContainer } },
+    disabled: true,
+    multiline: true,
+    numberOfLines: 15,
+  })``;
+
+  // to exit page
+  const navigate = useNavigate();
+
+  // For setting image height/width
   const { height, width } = Dimensions.get('screen');
 
+  const StyledSurface = styled(Surface).attrs({ style: { width } })``;
+
+  // collect detaials for query/mutation
   const { id: userId } = _getUserDetails();
   const { id: mealId } = useParams<{ id: string }>();
 
+  // relevant query and mutation
   const { data, loading, error } = useQuery(GET_MEAL_QUERY, {
     variables: { userId, mealId },
   });
 
-  if (loading) {
+  const [deleteMeal, { loading: mutationLoading, error: mutationError }] =
+    useMutation(DELETE_MEAL);
+
+  // open state for delete confirmation dialog
+  const [open, setOpen] = useState<boolean>(false);
+
+  // loading or error early return
+  if (loading || mutationLoading) {
     return <Loading />;
   }
 
-  if (error) {
-    return <ErrorPage message="Error retrieving meal" />;
+  if (error || mutationError) {
+    const msg = error
+      ? 'Error retrieving meal'
+      : mutationError
+      ? 'Error deleting meal, please try again'
+      : undefined;
+    return <ErrorPage message={msg} />;
   }
 
+  const confirmMealDelete = async () => {
+    await deleteMeal({ variables: { userId, mealId } });
+    navigate(-1);
+  };
+
+  // extract data if not loading/no error
   const { meal } = data;
   const [date, time] = new Date(meal.timeLogged)
     .toLocaleString()
@@ -60,13 +83,8 @@ export const Meal: React.FC = () => {
     <ScrollView>
       {meal && (
         <>
-          <Surface
-            style={{
-              backgroundColor: theme.colors.onTertiary,
-              margin: 0,
-              width: width,
-            }}>
-            <StyledIcon icon="food" />
+          <StyledSurface>
+            <StyledFoodIcon icon="food" />
             <Image
               source={{ uri: meal.photoUrl.toString() }}
               style={{
@@ -76,25 +94,29 @@ export const Meal: React.FC = () => {
             />
             <VStack m={10} spacing={5}>
               <Text variant="displaySmall">{meal.name}</Text>
-              <Divider />
               <Text variant="titleSmall">
                 <Text>Logged On: {date}</Text>
                 <Text>
                   {'\n'}At: {time}
                 </Text>
               </Text>
+              <Divider bold style={{ marginTop: 20 }} />
+              <Text variant="titleLarge">Description</Text>
             </VStack>
-          </Surface>
-          <TextInput
-            mode="flat"
-            disabled={true}
-            value={meal.description}
-            multiline={true}
-            numberOfLines={15}
+            <StyledTextInput value={meal.description} />
+          </StyledSurface>
+
+          {/* Delete Button */}
+          <StyledDeleteIcon icon="delete" onPress={() => setOpen(true)} />
+
+          {/* Confirm delete dialog */}
+          <DeleteMealDialog
+            open={open}
+            setOpen={setOpen}
+            confirmMealDelete={confirmMealDelete}
           />
         </>
       )}
-      <TEMP />
     </ScrollView>
   );
 };
