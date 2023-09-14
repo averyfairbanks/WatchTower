@@ -1,5 +1,11 @@
 import { Stack } from '@react-native-material/core';
-import { ReactNode, createContext, useCallback, useEffect, useState } from 'react';
+import {
+  ReactNode,
+  createContext,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { Appbar, Searchbar, useTheme } from 'react-native-paper';
 import { useLocation, useNavigate } from 'react-router-native';
 import { _getUserDetails, _isLoggedIn } from '../../utils/storeMethods';
@@ -41,10 +47,13 @@ export const AppBarProvider: React.FC<{ children: ReactNode }> = ({
     searchOpen: false,
   });
 
-  const updateAppbar = useCallback((newState: AppbarState) => {
-    setState({...state, ...newState});
-    return null;
-  }, [setState])
+  const updateAppbar = useCallback(
+    (newState: AppbarState) => {
+      setState({ ...state, ...newState });
+      return null;
+    },
+    [setState],
+  );
 
   const path = useLocation().pathname;
 
@@ -78,7 +87,7 @@ export const AppBarProvider: React.FC<{ children: ReactNode }> = ({
   const { back, search, searchOpen, titleMessage } = state;
 
   return (
-    <AppBarContext.Provider value={{searchTerm, updateAppbar}}>
+    <AppBarContext.Provider value={{ searchTerm, updateAppbar }}>
       {_isLoggedIn() ? (
         <Stack>
           <Appbar.Header elevated={true}>
