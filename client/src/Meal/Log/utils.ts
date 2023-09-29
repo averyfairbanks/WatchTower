@@ -5,11 +5,17 @@ import {
   MutationFunctionOptions,
   OperationVariables,
 } from '@apollo/client';
+import notifee, {
+  AndroidNotificationSetting,
+  TimestampTrigger,
+  TriggerType,
+} from '@notifee/react-native';
 import { FormikErrors } from 'formik';
 import { Asset, launchImageLibrary } from 'react-native-image-picker';
 import { NavigateFunction } from 'react-router-native';
 import { mixed, object, string } from 'yup';
 import { SnackType } from '../../common/SnackBar/types';
+import { encode } from '../../utils/encoding';
 import { UserMeal } from '../types';
 import { CreateMealDto, LogMealFormValues } from './types';
 
@@ -44,6 +50,48 @@ export const _pickImage = (
       console.log(err);
       addSnack('Error collecting your file!', SnackType.FAILURE);
     });
+};
+
+const setupReminderNotification = async (mealName: string, mealId: number) => {
+  await notifee.requestPermission();
+
+  const settings = await notifee.getNotificationSettings();
+  if (settings.android.alarm == AndroidNotificationSetting.ENABLED) {
+  } else {
+    await notifee.openAlarmPermissionSettings();
+  }
+
+  const channelId = await notifee.createChannel({
+    id: 'watchtower-reminder',
+    name: 'watchtower-reminder Channel',
+  });
+
+  const date = new Date(Date.now());
+  date.setHours(date.getHours() + 1);
+
+  const trigger: TimestampTrigger = {
+    type: TriggerType.TIMESTAMP,
+    timestamp: date.getTime(),
+  };
+
+  await notifee.createTriggerNotification(
+    {
+      title: mealName,
+      body: 'Please check in about your recent meal!',
+      android: {
+        channelId,
+        smallIcon: undefined,
+        pressAction: {
+          id: 'watchtower-reminder',
+          mainComponent: 'App',
+        },
+      },
+      data: {
+        mealId: encode(String(mealId)),
+      },
+    },
+    trigger,
+  );
 };
 
 // handler for submitting new photo/meal
@@ -138,9 +186,9 @@ export const handleLogMeal = async (
           }
           throw new Error("Couldn't commit new meal");
         })
-        .then(userMeal => {
+        .then(async userMeal => {
           // userMeal should contain the newly created UserMeal object
-          console.log(userMeal);
+          await setupReminderNotification(name, userMeal.id);
           setIsLoading(false);
           navigate(-1);
         });
