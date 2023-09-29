@@ -1,6 +1,5 @@
-import { VStack } from '@react-native-material/core';
 import { ScrollView } from 'react-native';
-import { Avatar, Badge, Card, Text, useTheme } from 'react-native-paper';
+import { Avatar, Badge, Card, Text } from 'react-native-paper';
 import { useNavigate } from 'react-router-native';
 import { UserMeal } from '../Meal/types';
 import { encode } from '../utils/encoding';
@@ -19,15 +18,16 @@ export const MealCard: React.FC<{
   const navigate = useNavigate();
 
   const convDateTime = new Date(meal.timeLogged).toLocaleString();
-  const onFirstPage = idx === 0 && page === 1;
+  const leadMeal = idx === 0 && page === 1;
+  const mealUrl = `/meal/${encode(String(meal.id))}`;
 
   return (
     <Card
-      style={{ marginBottom: 8 }}
-      onPress={() => navigate(`/meal/${encode(String(meal.id))}`)}>
+      style={{ marginBottom: 8, paddingBottom: 10 }}
+      onPress={() => navigate(mealUrl)}>
       <Card.Title
         title={
-          onFirstPage ? (
+          leadMeal ? (
             <Text
               style={{
                 fontSize: 30,
@@ -39,24 +39,25 @@ export const MealCard: React.FC<{
             <Text variant="titleLarge">{meal.name}</Text>
           )
         }
-        subtitle={onFirstPage ? undefined : <Text>{convDateTime}</Text>}
+        subtitle={leadMeal ? undefined : <Text>{convDateTime}</Text>}
         left={props => <Avatar.Icon {...props} icon="food" />}
         right={meal.notified ? undefined : () => <Badge />}
         rightStyle={{ margin: 10 }}
       />
-      {onFirstPage && (
-        <Card.Cover
-          source={{
-            uri: meal.photoUrl.toString(),
-          }}
-          style={{ margin: 5 }}
-        />
-      )}
-      {onFirstPage && (
-        <Card.Content>
-          <Text variant="titleLarge">{meal.name}</Text>
-          <Text variant="bodyMedium">{convDateTime}</Text>
-        </Card.Content>
+
+      {leadMeal && (
+        <>
+          <Card.Cover
+            source={{
+              uri: meal.photoUrl,
+            }}
+            style={{ margin: 5 }}
+          />
+          <Card.Content>
+            <Text variant="titleLarge">{meal.name}</Text>
+            <Text variant="bodyMedium">{convDateTime}</Text>
+          </Card.Content>
+        </>
       )}
     </Card>
   );

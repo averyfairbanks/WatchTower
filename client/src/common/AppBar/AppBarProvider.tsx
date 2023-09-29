@@ -1,10 +1,26 @@
 import { Stack } from '@react-native-material/core';
-import { ReactNode, createContext, useEffect, useState } from 'react';
+import {
+  ReactNode,
+  createContext,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { Appbar, Searchbar, useTheme } from 'react-native-paper';
 import { useLocation, useNavigate } from 'react-router-native';
 import { _getUserDetails, _isLoggedIn } from '../../utils/storeMethods';
 
-export const AppBarContext = createContext('');
+interface AppbarState {
+  titleMessage: string;
+  back: boolean;
+  search: boolean;
+  searchOpen: boolean;
+}
+
+export const AppBarContext = createContext({
+  searchTerm: '',
+  updateAppbar: (newState: AppbarState) => null,
+});
 
 export const AppBarProvider: React.FC<{ children: ReactNode }> = ({
   children,
@@ -30,6 +46,14 @@ export const AppBarProvider: React.FC<{ children: ReactNode }> = ({
     search: false,
     searchOpen: false,
   });
+
+  const updateAppbar = useCallback(
+    (newState: AppbarState) => {
+      setState({ ...state, ...newState });
+      return null;
+    },
+    [setState],
+  );
 
   const path = useLocation().pathname;
 
@@ -63,7 +87,7 @@ export const AppBarProvider: React.FC<{ children: ReactNode }> = ({
   const { back, search, searchOpen, titleMessage } = state;
 
   return (
-    <AppBarContext.Provider value={searchTerm}>
+    <AppBarContext.Provider value={{ searchTerm, updateAppbar }}>
       {_isLoggedIn() ? (
         <Stack>
           <Appbar.Header elevated={true}>
